@@ -1,12 +1,19 @@
 {
-  "name": "graph-db",
-  "version": "0.1.0",
-  "description": "Entity-centric skill knowledge graph for OpenClaw resolve_skill",
+  "name": "skillgraph",
+  "version": "1.0.0",
+  "description": "SQLite knowledge graph for dynamic skill resolution in OpenClaw agents",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/coolmanns/skillgraph"
+  },
   "scripts": {
     "init": "node init-db.js",
     "seed": "node seed.js",
     "query": "node query.js",
-    "test": "node test.js"
-  }
+    "test": "node test.js",
+    "visualize": "node visualize.js"
+  },
+  "keywords": ["openclaw", "skill-resolver", "knowledge-graph", "sqlite", "agent-tools"]
 }
