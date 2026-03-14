@@ -1,0 +1,30 @@
+{
+  "A_should_resolve": [
+    "Restart the Ollama container",
+    "Check if Postiz has any failed posts",
+    "Deploy the latest microdose-tracker build",
+    "Add a new Caddy reverse proxy entry",
+    "Check n8n workflow status"
+  ],
+  "B_should_resolve": [
+    "Write a new blog post about psilocybin research",
+    "Schedule a LinkedIn post for Monday",
+    "Run the backup script",
+    "Check the cron logs for errors",
+    "Post to social media about the new article"
+  ],
+  "C_should_not_resolve": [
+    "What's the weather tomorrow?",
+    "Search the web for Johns Hopkins psilocybin trials",
+    "Edit MEMORY.md to add a new section",
+    "Read today's daily notes",
+    "Send Sascha a message about the calendar"
+  ],
+  "D_ambiguous": [
+    "Set up a new Docker container for testing",
+    "Check disk space on the server",
+    "Update the SSL certificate",
+    "Look at the Home Assistant logs",
+    "Create a new automation for morning alerts"
+  ]
+}

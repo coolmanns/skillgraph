@@ -1,0 +1,12 @@
+{
+  "name": "graph-db",
+  "version": "0.1.0",
+  "description": "Entity-centric skill knowledge graph for OpenClaw resolve_skill",
+  "type": "module",
+  "scripts": {
+    "init": "node init-db.js",
+    "seed": "node seed.js",
+    "query": "node query.js",
+    "test": "node test.js"
+  }
+}

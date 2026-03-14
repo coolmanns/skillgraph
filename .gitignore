@@ -1,0 +1,8 @@
+node_modules/
+*.db
+*.db-shm
+*.db-wal
+entity-embeddings.json
+.DS_Store
+._.DS_Store
+._*
