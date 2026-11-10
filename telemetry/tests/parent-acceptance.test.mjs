@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {validateEvaluationCase} from '../src/evaluation-contract.js';
+const manifest={source_instance_id:'synthetic',source_locator_hmac:'bound',selection:{sessionIds:['s'],since:'2026-01-01T00:00:00Z',until:'2027-01-01T00:00:00Z'}};
+function fixture(){return {c:{contract:'hermes-task-case.v1',case_id:'probe',source_instance_id:'synthetic',source_locator_hmac:'bound',session_id:'s',family:'synthetic',lineage_group:'synthetic',decision_row_id:1,decision_at:1770000000,inputs:{context:[{row_id:1,origin:'human_request',summary:'Synthetic request'}],eligible_catalog:null},review:{label_source:'reviewer',review_version:'test',outcome:'partial',evidence:[{row_id:2,kind:'tool_result',scope:'Synthetic result'}],skills:[],corrections:[],skill_edits:[],acceptance:[{predicate:'Synthetic condition',state:'supported',evidence_rows:[2]}],limitations:['Synthetic fixture only'],unchosen_outcomes:'unknown'}},rows:new Map([[1,{id:1,session_id:'s',profile_name:'default',role:'user',timestamp:1770000000}],[2,{id:2,session_id:'s',profile_name:'default',role:'tool',timestamp:1770000001}]])};}
+test('control: bounded partial case accepted',()=>{const {c,rows}=fixture();assert.equal(validateEvaluationCase(c,manifest,rows),c);});
+test('verified success requires acceptance predicates',()=>{const {c,rows}=fixture();c.review.outcome='verified_success';c.review.acceptance=[];assert.throws(()=>validateEvaluationCase(c,manifest,rows));});
+test('assistant claim cannot be sole support for verified success',()=>{const {c,rows}=fixture();c.review.outcome='verified_success';c.review.evidence[0].kind='assistant_claim';rows.get(2).role='assistant';assert.throws(()=>validateEvaluationCase(c,manifest,rows));});
+test('assistant row cannot be relabeled as tool result',()=>{const {c,rows}=fixture();rows.get(2).role='assistant';assert.throws(()=>validateEvaluationCase(c,manifest,rows));});
