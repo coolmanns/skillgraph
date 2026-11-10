@@ -40,6 +40,14 @@ export function validateEvaluationCase(c,manifest,rows) {
  for(const s of v.skills){keys(s,['name','stage','row_id','artifact_hash']);locate(s.row_id);if(!text(s.name)||!['selected','loaded','reference_read','changed'].includes(s.stage)||s.artifact_hash!==null)fail('historical skill stage/version');}
  for(const x of [...v.corrections,...v.skill_edits]){keys(x,['row_id','scope']);locate(x.row_id);if(!text(x.scope))fail('correction scope');}
  for(const a of v.acceptance){keys(a,['predicate','state','evidence_rows']);if(!text(a.predicate)||!['supported','contradicted','unknown'].includes(a.state)||!Array.isArray(a.evidence_rows)||a.evidence_rows.some(id=>!evidenceIds.has(id))||(a.state!=='unknown'&&!a.evidence_rows.length))fail('acceptance references');}
+ if(v.outcome==='verified_success'){
+  if(!v.acceptance.length)fail('verified success requires acceptance predicates');
+  // These are role-checked, source-bound observations, not semantic proof.
+  // Claims/notifications/compaction and RED tests cannot alone justify success.
+  const supportKinds=new Set(['tool_result','test_green','readback','human_feedback','skill_load','skill_edit']);
+  const supportRows=new Set(v.evidence.filter(e=>supportKinds.has(e.kind)).map(e=>e.row_id));
+  if(v.acceptance.some(a=>a.state!=='supported'||!a.evidence_rows.some(id=>supportRows.has(id))))fail('verified success requires supported non-claim evidence per predicate');
+ }
  return c;
 }
 export function selectorInput(c,manifest,rows){validateEvaluationCase(c,manifest,rows);return structuredClone(c.inputs);}
