@@ -1,5 +1,20 @@
 {
   "scope": "offline extraction and evidence contracts; no historical corpus",
+  "repair_passes": [{
+    "baseline_commit": "92bcf38624aabdb7790a075297e31dbb3816108b",
+    "provenance": "Scoped synthetic TDD repairs authored in the isolated PR checkout. Original files[] import hashes below are immutable baseline evidence, not current hashes. See COLLECTOR-REPAIRS.md.",
+    "current_files": [
+      {"path":"telemetry/src/adapters/hermes-history.js","sha256":"a139b88355024956c50b2acb61c48e3614946239a02c3f881296f9d574510e87"},
+      {"path":"telemetry/src/adapters/hermes-selection.js","sha256":"fa6097fb98cd6bc63753a9672919e27b886da25baec31cc6e3ef20e2f7478ec0"},
+      {"path":"telemetry/src/adapters/hermes-time.js","sha256":"a4321a056d825fdf98222ef474e63baae509e6fb0ca3fb02e568212563d292ad","origin":"new exact decimal timestamp helper"},
+      {"path":"telemetry/src/classifiers.js","sha256":"3de8fa667db929c6333fb1a224e9ba0725c46dc5b29c430019a84b274ee1ef17"},
+      {"path":"telemetry/src/evaluation-contract.js","sha256":"5e5062e8aaab452713ce58cee05b1e10b648d54b6dc1f1ecf46c2e58453bcfec"},
+      {"path":"telemetry/tests/collector-bounds.test.js","sha256":"193871a6a24bfae44527b783cdcb08739b16c9d03144a0a2e26edeb938af149b"},
+      {"path":"telemetry/tests/parent-acceptance.test.mjs","sha256":"fd5bfbf88f01cbb598d335263298a1aceb86eb71732d862d9adea0ba04b0c2e3"},
+      {"path":"telemetry/tests/parent-boundaries.test.mjs","sha256":"e23d26a1a6956b4a5ed3a8669d2218764577624cf540f441249880a809dd35d5"},
+      {"path":"telemetry/tests/patch-retries.test.js","sha256":"25a743799ca3306272cdb3bd46ed4ca42365d03bea82156a378c2bbc5255fe28","origin":"new synthetic regression and replay tests"}
+    ]
+  }],
   "files": [
     {
       "path": "telemetry/src/adapters/hermes-history.js",

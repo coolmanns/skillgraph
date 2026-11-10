@@ -1,7 +1,8 @@
 # SkillGraph — Task Routing for Gandalf
 
 > **Current branch status:** the Collector offline core is being brought under SDLC in a
-> draft PR; it is not production-ready. Four real acceptance regressions remain red.
+> draft PR; it is not production-ready. The scoped five-defect repair pass now passes
+> 108 synthetic tests; independent review and broader readiness remain pending.
 > See [BRANCH-README.md](BRANCH-README.md), [telemetry/README.md](telemetry/README.md) and
 > [migration audit](docs/COLLECTOR-MIGRATION.md). No merge, deployment or live activation
 > is included. The legacy operational description below is preserved historical baseline,

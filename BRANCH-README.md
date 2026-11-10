@@ -16,7 +16,8 @@ implicitly accepted. See the [audit and exclusions](docs/COLLECTOR-MIGRATION.md)
 [per-file provenance manifest](docs/collector-migration-manifest.json).
 
 The source import is followed by an explicit acceptance-regression commit and SDLC documentation/
-CI commit. This is a migration, not broad product remediation. Do not use this branch for
+CI commit. The user subsequently approved the narrow five-defect repair pass documented in
+[COLLECTOR-REPAIRS.md](docs/COLLECTOR-REPAIRS.md), not broad product remediation. Do not use this branch for
 unrelated runtime repairs. Start subsequent work from the reviewed base/head on a new task branch,
 carry the regression gates forward, and keep one writer per checkout.
 
@@ -24,18 +25,22 @@ carry the regression gates forward, and keep one writer per checkout.
 
 1. Inspect the full base-to-head diff and manifest; independently confirm no historical payload.
 2. Install using the audited commands in `telemetry/README.md`; run the **default** full test gate.
-3. Confirm the four named failures, not just a count; positive controls must pass.
+3. Confirm all five repaired behaviors and their positive controls, not just a passing count.
 4. Read exact-head GitHub checks and independent review separately. Self-review is not approval.
-5. Resolve the missing new-checkout GitNexus index via an authorized native MCP workflow.
+5. Verify the exact-head `skillgraph-collector-sdlc` index and native MCP analysis. Only canonical
+   CLI indexing of this isolated checkout is authorized; no embeddings or service restart.
 6. Keep the existing Collector task blocked. Parent owns its state and evidence handoff.
 
-Local migration baseline: **33 tests, 29 pass / 4 fail**. Missing index, independent review and
-engineering fixes are open gates. No historical corpus readiness, calibration or deployment
-claim is made. A green diagnostic subset is insufficient.
+Local migration baseline: **33 tests, 29 pass / 4 fail**. Scoped repair result: **108 tests,
+108 pass / 0 fail**, including the added patch retry regression. Original import hashes remain
+immutable; appended repair metadata records new bytes. Independent review remains open. No
+historical corpus readiness, calibration or deployment claim is made. A green diagnostic subset
+is insufficient. Read exact-head CI and final index evidence in the draft PR handoff.
 
 ## Authority, rollback and definition of done
 
-User authorized audited code publication, this isolated branch and a **draft** PR only.
+User authorized audited code publication, this isolated branch, a **draft** PR, the scoped
+five-defect repair pass and narrow canonical-CLI indexing of this checkout only.
 No merge, deployment, config change, restart, activation or historical-data publication.
 Rollback for this migration is to decline/close the draft; no live runtime changes need reversal.
 Before eventual merge: independent acceptance of scope/privacy, reviewed fixes for failing

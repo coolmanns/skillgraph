@@ -1,5 +1,11 @@
 # Audited Collector migration
 
+> This document preserves the initial migration audit and its real red baseline. The subsequent
+> authorized five-defect repair pass is documented in [COLLECTOR-REPAIRS.md](COLLECTOR-REPAIRS.md):
+> 108 synthetic tests now pass. Original manifest import hashes remain unchanged; appended repair
+> hashes identify current bytes. Prior missing-index/failure statements below describe the
+> migration checkpoint, not current repair status. This is still a draft, not readiness approval.
+
 ## Provenance and choice
 
 Base: public `coolmanns/skillgraph` main, `0090e4b16f82717816b78c1f74f62e214619a0fa`.
