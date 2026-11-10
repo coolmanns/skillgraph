@@ -6,3 +6,23 @@ entity-embeddings.json
 .DS_Store
 ._.DS_Store
 ._*
+
+# Private Collector inputs/outputs and local execution state: never publish.
+artifacts/
+reports/
+runtime-snapshot/
+.test-scratch/
+.gitnexus/
+node_modules/
+__pycache__/
+*.pyc
+*.db*
+*.sqlite*
+*.jsonl
+*.log
+.env
+.env.*
+*.pem
+*.key
+telemetry/operations/
+telemetry/mappings/

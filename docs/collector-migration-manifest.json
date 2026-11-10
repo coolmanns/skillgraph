@@ -1,0 +1,215 @@
+{
+  "scope": "offline extraction and evidence contracts; no historical corpus",
+  "files": [
+    {
+      "path": "telemetry/src/adapters/hermes-history.js",
+      "origin": "collector/telemetry/src/adapters/hermes-history.js",
+      "source_sha256": "2ec6c74cb74048a1af81a589b5d5330e71a785dd95299827fc01d573ac72d7d9",
+      "sha256": "2ec6c74cb74048a1af81a589b5d5330e71a785dd95299827fc01d573ac72d7d9",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/adapters/hermes-selection.js",
+      "origin": "collector/telemetry/src/adapters/hermes-selection.js",
+      "source_sha256": "a3a06638e02dd1edd242b34cc82f555f8b73cd458a6eafec6e8efd9f29da858f",
+      "sha256": "a3a06638e02dd1edd242b34cc82f555f8b73cd458a6eafec6e8efd9f29da858f",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/canonical-json.js",
+      "origin": "collector/telemetry/src/canonical-json.js",
+      "source_sha256": "18feae77f8d7fbd05d19fa419157feac60f1b3416abef71715595a690c80a5e3",
+      "sha256": "18feae77f8d7fbd05d19fa419157feac60f1b3416abef71715595a690c80a5e3",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/classifiers.js",
+      "origin": "collector/telemetry/src/classifiers.js",
+      "source_sha256": "3d3e8d070c79261d874063f6053d9916d5412b190423cdb0d25f32cf699b05d7",
+      "sha256": "3d3e8d070c79261d874063f6053d9916d5412b190423cdb0d25f32cf699b05d7",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/evaluation-contract.js",
+      "origin": "collector/telemetry/src/evaluation-contract.js",
+      "source_sha256": "f72850c92ef0b7a2fda8ca03cb75c549af063032cce24efbd16ff1a3cec052fb",
+      "sha256": "f72850c92ef0b7a2fda8ca03cb75c549af063032cce24efbd16ff1a3cec052fb",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/event.js",
+      "origin": "collector/telemetry/src/event.js",
+      "source_sha256": "67868db7e8deeeff3ed2bfc95c8ad42d077b1521b27f0d56054cc271ce0ebe33",
+      "sha256": "67868db7e8deeeff3ed2bfc95c8ad42d077b1521b27f0d56054cc271ce0ebe33",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/hashes.js",
+      "origin": "collector/telemetry/src/hashes.js",
+      "source_sha256": "6e2fbc83242c9af7495f176e6583d594ccf7e85e7fcc04adf9f5a83e0837632e",
+      "sha256": "6e2fbc83242c9af7495f176e6583d594ccf7e85e7fcc04adf9f5a83e0837632e",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/hermes-reducer.js",
+      "origin": "collector/telemetry/src/hermes-reducer.js",
+      "source_sha256": "c4340227f97bd44019dc4c0f5cd8106b9a9bcd53371e8ee84213dbeb8f233d5d",
+      "sha256": "c4340227f97bd44019dc4c0f5cd8106b9a9bcd53371e8ee84213dbeb8f233d5d",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/identity.js",
+      "origin": "collector/telemetry/src/identity.js",
+      "source_sha256": "68b0db333bf8ecc39e9a3c079eda1219b7e7ea239be860fa556b2ff5b0423687",
+      "sha256": "68b0db333bf8ecc39e9a3c079eda1219b7e7ea239be860fa556b2ff5b0423687",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/ids.js",
+      "origin": "collector/telemetry/src/ids.js",
+      "source_sha256": "46fc8b0fcdeb8266b991dde4e0e61f4c9c9f34902c2afe1822014cc2337796e4",
+      "sha256": "46fc8b0fcdeb8266b991dde4e0e61f4c9c9f34902c2afe1822014cc2337796e4",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/privacy.js",
+      "origin": "collector/telemetry/src/privacy.js",
+      "source_sha256": "ab2f49f6fb96f6f255160d38c0233f0fabcb166786f3510210a43d6d592f8227",
+      "sha256": "ab2f49f6fb96f6f255160d38c0233f0fabcb166786f3510210a43d6d592f8227",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/receipt-validator.js",
+      "origin": "collector/telemetry/src/receipt-validator.js",
+      "source_sha256": "d5f4086c6baffbfb75ae6a0f4448ee3b2e3a64d370aaab6295c4adf245b08c1e",
+      "sha256": "d5f4086c6baffbfb75ae6a0f4448ee3b2e3a64d370aaab6295c4adf245b08c1e",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/schema.js",
+      "origin": "collector/telemetry/src/schema.js",
+      "source_sha256": "a60add93b683669dc36cbd438255439efdb48343c4a22af944ff6a6059887ed8",
+      "sha256": "a60add93b683669dc36cbd438255439efdb48343c4a22af944ff6a6059887ed8",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/wrapper-attribution.js",
+      "origin": "collector/telemetry/src/wrapper-attribution.js",
+      "source_sha256": "98a83e307bf616d2fade8bca768bd82c95e271b26d62539ebe4b1cc055b71eab",
+      "sha256": "98a83e307bf616d2fade8bca768bd82c95e271b26d62539ebe4b1cc055b71eab",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/schema/adapter-event.v0.schema.json",
+      "origin": "collector/telemetry/schema/adapter-event.v0.schema.json",
+      "source_sha256": "7cca060269be336ddf0ce30a173ff33d32abd06cef76d7f7df8818f353ca2c66",
+      "sha256": "7cca060269be336ddf0ce30a173ff33d32abd06cef76d7f7df8818f353ca2c66",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/schema/enums.schema.json",
+      "origin": "collector/telemetry/schema/enums.schema.json",
+      "source_sha256": "b22af6142d04b1cf3e031633045c1c42ee8bdd2768483a8e32f7660d119c56a8",
+      "sha256": "b22af6142d04b1cf3e031633045c1c42ee8bdd2768483a8e32f7660d119c56a8",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/schema/event.v0.schema.json",
+      "origin": "collector/telemetry/schema/event.v0.schema.json",
+      "source_sha256": "6fe43147afd95ea90c1ac5b671a7030e4715167d5962ae88cfe4c6a85b802078",
+      "sha256": "6fe43147afd95ea90c1ac5b671a7030e4715167d5962ae88cfe4c6a85b802078",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/policies/redaction-v0.json",
+      "origin": "collector/telemetry/policies/redaction-v0.json",
+      "source_sha256": "e51293477b53a6bdb4c903f247a9f9c51a87d9668fcde23aca1771678a5dc8f8",
+      "sha256": "e51293477b53a6bdb4c903f247a9f9c51a87d9668fcde23aca1771678a5dc8f8",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/package-lock.json",
+      "origin": "collector/telemetry/package-lock.json",
+      "source_sha256": "33d46c933bdb01b34794541ad1d3a2cfbd36a5948afddd6b3b8aace239717f90",
+      "sha256": "33d46c933bdb01b34794541ad1d3a2cfbd36a5948afddd6b3b8aace239717f90",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/evaluation-contract.test.js",
+      "origin": "collector/telemetry/tests/evaluation-contract.test.js",
+      "source_sha256": "f5a7b94c0afaaf9cc0293e3be26778238572d51372e44beb575cd0fdde47790c",
+      "sha256": "f5a7b94c0afaaf9cc0293e3be26778238572d51372e44beb575cd0fdde47790c",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/receipt-validator.test.js",
+      "origin": "collector/telemetry/tests/receipt-validator.test.js",
+      "source_sha256": "8636bc2ccdf669cdd9e5df3ae7c8ce742ba6385f7f295245c25e3ec5bed392bf",
+      "sha256": "8636bc2ccdf669cdd9e5df3ae7c8ce742ba6385f7f295245c25e3ec5bed392bf",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/wrapper-attribution.test.js",
+      "origin": "collector/telemetry/tests/wrapper-attribution.test.js",
+      "source_sha256": "977171a65ec4d79efb8be5e02240d157cbdf016f42d3416d488fa9b2ac30394d",
+      "sha256": "977171a65ec4d79efb8be5e02240d157cbdf016f42d3416d488fa9b2ac30394d",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/collector-bounds.test.js",
+      "origin": "collector/telemetry/tests/collector-bounds.test.js",
+      "source_sha256": "58aa08486cb11d2e6bb6b82da6bcb8b5ddb27f8ae584a7ad743e8729d9e0b429",
+      "sha256": "58aa08486cb11d2e6bb6b82da6bcb8b5ddb27f8ae584a7ad743e8729d9e0b429",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/classifiers.test.js",
+      "origin": "collector/telemetry/tests/classifiers.test.js",
+      "source_sha256": "3d45b5e0e818226a0918865c6996f34e699ac08e59b949c8e0ca555a1f10edaf",
+      "sha256": "3d45b5e0e818226a0918865c6996f34e699ac08e59b949c8e0ca555a1f10edaf",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/hashing-identity.test.js",
+      "origin": "collector/telemetry/tests/hashing-identity.test.js",
+      "source_sha256": "99bc352bdc4b155cfc801e3d119579c87dd5d2505400c2ca126e72e30a673878",
+      "sha256": "99bc352bdc4b155cfc801e3d119579c87dd5d2505400c2ca126e72e30a673878",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/privacy.test.js",
+      "origin": "collector/telemetry/tests/privacy.test.js",
+      "source_sha256": "7282a701e93800818e758d55bb7ceeda6fe08c20afccb41e4cc0981d28802c61",
+      "sha256": "7282a701e93800818e758d55bb7ceeda6fe08c20afccb41e4cc0981d28802c61",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/helpers.js",
+      "origin": "collector/telemetry/tests/helpers.js (pure event helpers only)",
+      "source_sha256": "29361d4628727865e8b4c709f0ae7d0b676a77546b324bd96c0c3504cda22eca",
+      "sha256": "7848c701b79a66e7df8c30723aa91bcc0db91feab96e7d8b13b9af8e72ded49a",
+      "adapted": true
+    },
+    {
+      "path": "telemetry/tests/selected-history.test.js",
+      "origin": "collector/telemetry/tests/selected-history.test.js (extraction tests only; CLI deferred)",
+      "source_sha256": "68a835467b56358a1a70d4a9ffa3af63c88d660a382791e46afddf86ea253cc3",
+      "sha256": "eb905bc9a4dff7fdcaed7f0297447222a94096c151c673b581f9f81e145df5ef",
+      "adapted": true
+    },
+    {
+      "path": "telemetry/tests/parent-acceptance.test.mjs",
+      "origin": "parent synthetic acceptance fixture",
+      "source_sha256": "dae7ac10fb2318f8334691f5a91bdc0d44d07b18d63b6cc839ad6417b08a6abf",
+      "sha256": "c1bf37b3343a5eff8aa563319c3568842df73bee6a3dbce941a45d6197ba8f8c",
+      "adapted": true
+    },
+    {
+      "path": "telemetry/tests/parent-boundaries.test.mjs",
+      "origin": "parent synthetic boundary fixture",
+      "source_sha256": "790ee816f6bbf0d474a8eb14fa533f04419db5bc6359b703d9f863821c648ecf",
+      "sha256": "8d095ba9d71e35016939d61d8e1c3e22d127b331755631ceaaffaae961189064",
+      "adapted": true
+    }
+  ]
+}
