@@ -10,10 +10,10 @@ test('bounded history reads only selected recent rows and caps payloads in SQL',
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'collector-bounds-'));
   const file = path.join(dir, 'state.db');
   const db = new Database(file);
-  db.exec(`CREATE TABLE sessions(id TEXT, started_at REAL);
+  db.exec(`CREATE TABLE sessions(id TEXT, started_at REAL, profile_name TEXT);
     CREATE TABLE messages(id INTEGER PRIMARY KEY, session_id TEXT, role TEXT, content TEXT,
       tool_calls TEXT, tool_call_id TEXT, tool_name TEXT, timestamp REAL);
-    INSERT INTO sessions VALUES ('old',1),('new',2);`);
+    INSERT INTO sessions VALUES ('old',1,'default'),('new',2,'default');`);
   const put = db.prepare('INSERT INTO messages VALUES (?,?,?,?,?,?,?,?)');
   put.run(1,'old','tool','{"success":true}',null,'old-call','terminal',1);
   put.run(2,'new','user','private context',null,null,null,2);
@@ -35,9 +35,7 @@ test('bounded history reads only selected recent rows and caps payloads in SQL',
     assert.deepEqual(fs.readFileSync(file),before);
     assert.throws(()=>extractHermesHistory({...options,bounds:{sessionLimit:0,rowLimit:2,maxFieldBytes:1024}}),/bounds/);
     const edit = new Database(file);
-    edit.exec(`ALTER TABLE sessions ADD COLUMN profile_name TEXT;
-      UPDATE sessions SET profile_name='default';
-      INSERT INTO sessions VALUES ('other',99,'unapproved-profile');
+    edit.exec(`INSERT INTO sessions VALUES ('other',99,'unapproved-profile');
       INSERT INTO messages VALUES (5,'other','tool','{}',NULL,'other-call','terminal',99);`);
     edit.close();
     assert.equal(extractHermesHistory(options).sourceReadBounds.rowsRead,2);

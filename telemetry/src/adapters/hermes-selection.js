@@ -1,3 +1,5 @@
+import { registerHistoryTime } from './hermes-time.js';
+
 // Explicit selection is fail-closed. All discovery precedes any body read.
 export function readSelectedHistory(db,{sessionIds,sinceMs,untilMs,bounds}) {
  if(!Array.isArray(sessionIds)||!sessionIds.length||sessionIds.length>100||sessionIds.some(id=>typeof id!=='string'||!/^\d{8}_\d{6}_[0-9a-f]{6}$/.test(id)))throw new Error('invalid literal session ID allowlist');
@@ -13,15 +15,16 @@ export function readSelectedHistory(db,{sessionIds,sinceMs,untilMs,bounds}) {
   return row;
  });
  // Numeric Hermes timestamps are seconds (or milliseconds); ISO text is supported.
- const time=`CASE WHEN typeof(m.timestamp) IN ('integer','real') THEN CASE WHEN m.timestamp<10000000000 THEN m.timestamp*1000 ELSE m.timestamp END ELSE (julianday(m.timestamp)-2440587.5)*86400000 END`;
- const where=`m.session_id=? AND s.profile_name='default' AND ${time}>=? AND ${time}<?`;
+ registerHistoryTime(db,sinceMs,untilMs);
+ const time='collector_time_ms(m.timestamp)';
+ const where="m.session_id=? AND s.profile_name='default' AND collector_in_window(m.timestamp)=1";
  const join='messages m JOIN sessions s ON s.id=m.session_id';
  const messageColumns=new Set(db.prepare('PRAGMA table_info(messages)').all().map(x=>x.name));
  const optional=name=>messageColumns.has(name)?`m.${name}`:`0 AS ${name}`;
  const field=name=>`CASE WHEN length(CAST(m.${name} AS BLOB))<=${maxFieldBytes} THEN m.${name} ELSE NULL END AS ${name}`;
  const rows=[],coverage=[];
  for(const session of sessions){
-  const args=[session.id,sinceMs,untilMs];
+  const args=[session.id];
   const available=db.prepare(`SELECT count(*) n, min(${time}) first_ms,max(${time}) last_ms FROM ${join} WHERE ${where}`).get(...args);
   let cursor=-1,pages=0,read=0,oversized=0;
   while(read<Math.min(rowLimit,available.n)){

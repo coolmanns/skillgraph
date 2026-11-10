@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { readSelectedHistory } from './hermes-selection.js';
+import { historyTimestampMillis, compareMillis, registerHistoryTime } from './hermes-time.js';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { canonicalize } from '../canonical-json.js';
@@ -14,6 +15,7 @@ export const HERMES_HISTORY_ADAPTER_ID = 'hermes-history';
 const ADAPTER_BUILD_FILES = [
   './hermes-history.js',
   './hermes-selection.js',
+  './hermes-time.js',
   '../hermes-reducer.js',
   '../classifiers.js',
   '../canonical-json.js',
@@ -98,7 +100,7 @@ function toMillis(value) {
 
 function parseBoundary(value, name) {
   if (value === null || value === undefined) return null;
-  const parsed = toMillis(value);
+  const parsed = historyTimestampMillis(value);
   if (parsed === null) throw new TypeError(`${name} must be a valid date-time or epoch value`);
   return parsed;
 }
@@ -216,18 +218,22 @@ function readStateSource(db, bounds = null, sinceMs = null, untilMs = null) {
   let sourceReadBounds = null;
   let messageSource = 'messages';
   let sessionSource = 'sessions';
-  db.function('collector_ms', {deterministic:true}, toMillis);
-  const timeWhere = [sinceMs === null ? '1' : `collector_ms(timestamp)>=${sinceMs}`,untilMs === null ? '1' : `collector_ms(timestamp)<${untilMs}`].join(' AND ');
-  messageSource = `(SELECT * FROM messages WHERE ${timeWhere})`;
+  // Only the legacy API with no row/date/session scope permits unknown profile.
+  const scoped = bounds !== null || sinceMs !== null || untilMs !== null;
+  if (scoped) {
+    if (!tableColumns(db, 'sessions')?.has('profile_name')) throw new Error('scoped profile membership unavailable');
+    sessionSource = "(SELECT * FROM sessions WHERE profile_name = 'default')";
+  }
+  registerHistoryTime(db, sinceMs, untilMs);
+  const timeWhere = sinceMs === null && untilMs === null ? '1' : 'collector_in_window(timestamp)=1';
+  messageSource = `(SELECT * FROM messages WHERE ${timeWhere}${scoped ? ` AND session_id IN (SELECT id FROM ${sessionSource})` : ''})`;
   if (bounds !== null) {
     const { sessionLimit, rowLimit, maxFieldBytes } = bounds;
     if (![sessionLimit, rowLimit, maxFieldBytes].every(Number.isSafeInteger)
       || sessionLimit < 1 || sessionLimit > 100 || rowLimit < 1 || rowLimit > 10000
       || maxFieldBytes < 1024 || maxFieldBytes > 1048576) throw new TypeError('invalid history bounds');
     // SQL bounds apply BEFORE materializing private text. No temporary tables/writes.
-    const profileFilter = tableColumns(db, 'sessions')?.has('profile_name')
-      ? "WHERE profile_name = 'default'" : '';
-    sessionSource = `(SELECT * FROM sessions ${profileFilter} ORDER BY started_at DESC, id DESC LIMIT ${sessionLimit})`;
+    sessionSource = `(SELECT * FROM ${sessionSource} ORDER BY started_at DESC, id DESC LIMIT ${sessionLimit})`;
     messageSource = `(SELECT * FROM messages WHERE ${timeWhere} AND session_id IN (SELECT id FROM ${sessionSource}) ORDER BY id DESC LIMIT ${rowLimit})`;
     const counts = db.prepare(`SELECT COUNT(*) AS rowsRead FROM ${messageSource}`).get();
     const oversizedFields = db.prepare(`SELECT COALESCE(SUM(
@@ -870,7 +876,7 @@ export function extractHermesHistory({
   }
   const sinceMs = parseBoundary(since, 'since');
   const untilMs = parseBoundary(until, 'until');
-  if (sinceMs !== null && untilMs !== null && sinceMs >= untilMs) {
+  if (sinceMs !== null && untilMs !== null && compareMillis(sinceMs, untilMs) >= 0) {
     throw new TypeError('since must be earlier than until');
   }
 
@@ -893,10 +899,9 @@ export function extractHermesHistory({
   const sessionMap = new Map(stateSource.sessions.map((row) => [row.id, row]));
   const warnings = warningCounter();
   assignChronology(reduction.reduced, sessionMap, warnings);
-  const inWindow = reduction.reduced.filter((record) => {
-    const occurrence = record.originalTimestampMs ?? record.eventTimestampMs;
-    return (sinceMs === null || occurrence >= sinceMs) && (untilMs === null || occurrence < untilMs);
-  });
+  // SQL already selected exact source instants before bodies were materialized.
+  // Rounded event presentation times must not reclassify eligible sub-ms rows.
+  const inWindow = reduction.reduced;
   const usersBySession = groupUsersBySession(
     stateSource.userRows,
     sourceInstanceId,
@@ -904,12 +909,6 @@ export function extractHermesHistory({
     warnings,
   );
   const quarantinedInWindow = reduction.quarantined
-    .filter((record) => {
-      const occurrence = record.transientOccurrenceMs
-        ?? toMillis(sessionMap.get(record.transientSessionId)?.started_at)
-        ?? 0;
-      return (sinceMs === null || occurrence >= sinceMs) && (untilMs === null || occurrence < untilMs);
-    })
     .map((record) => {
       const { transientSessionId, transientEarliestRowId, transientOccurrenceMs, ...safe } = record;
       const identity = episodeIdentity(
