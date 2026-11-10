@@ -15,8 +15,6 @@ jobs:
     defaults:
       run:
         working-directory: telemetry
-    env:
-      TMPDIR: ${{ runner.temp }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -31,4 +29,6 @@ jobs:
           npm_config_build_from_source: 'true'
         run: npm rebuild better-sqlite3 --foreground-scripts
       - name: Synthetic tests including blocking acceptance regressions
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: npm test

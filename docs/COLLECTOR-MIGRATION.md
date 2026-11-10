@@ -65,6 +65,9 @@ no private DB, external inference, historical command execution or service mutat
 CI runs on hosted Ubuntu with Node 24, pinned action SHAs, read-only contents permission,
 checkout credential persistence disabled, no secrets, no artifact upload and a ten-minute timeout.
 There are no `continue-on-error`, skipped or expected-failure regressions.
+The initial workflow run was rejected before jobs started because `runner.temp` was used
+at job-level `env`. It was moved to test-step `env`, where that context is available;
+that workflow-validation failure must not be confused with the four test failures.
 
 ## Verified baseline and remaining gates
 
