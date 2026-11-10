@@ -78,12 +78,66 @@ npm --prefix telemetry test
 git diff --check
 ```
 
-Final full result: **108 tests / 108 pass / 0 fail / 0 skipped / 0 todo**. The original canvas
+First repair checkpoint result: **108 tests / 108 pass / 0 fail / 0 skipped / 0 todo**.
+This checkpoint was subsequently rejected by independent review (R1/R2); see corrections below. The original canvas
 migration boxes checked whitespace only; separate repair boxes use real test commands.
 Sanitized RED/GREEN logs `00-baseline.log` through `18-final-full.log` are preserved locally in
 `collector-review-handoff/repair-pass-evidence` under the operator's Hermes workspace, not
 published as historical data. The final sanitized log SHA-256 is
 `f1a2de9b797dcb3c87ac41bba65e3e576ffb6245ded5ea9b8aaad5d27263a220`.
+
+## Independent-review corrections (R1/R2)
+
+Correction baseline: `2322e1fd2bddc27ed500b1ce99d044cbb7d9bcbf`. The independent review
+requested changes despite 108 passing repository tests: its original adversarial suite had
+**15 tests / 13 pass / 2 fail**. The original executable remains unchanged and is rerun locally;
+its SHA-256 is `6b18784159ad5dd4afe42af60da1ac96ba2c996891ad43717d170bb7161903aa`.
+
+- **R1:** omitted `mode` now means `replace`, matching Hermes `tools/file_tools.py`:
+  `patch_tool(mode="replace")` and registered handler `args.get("mode", "replace")`.
+  Replace mode requires path and replacement strings. Payload presence cannot imply patch mode.
+  The old patch-only/default equivalence assertion encoded the wrong producer contract; replacing
+  it with explicit negative controls corrects that contract, not weakens the gate. Explicit patch
+  payloads and aliases remain groupable, and explicit/default replacement equivalence is retained.
+  The full suite exposed a second old fixture in `classifiers.test.js` that omitted patch mode;
+  its payload-distinction control now uses explicit mode and also asserts nonempty signatures.
+- **R2:** compare the signed integer coefficient to the exact Date limit scaled by its decimal
+  precision, before rendering or Number conversion. Both endpoints are inclusive; arbitrarily
+  close supported fractions beyond them reject. Seconds/milliseconds threshold, exponent limits,
+  modern window/profile filtering before bodies and LIMIT, and approximate coverage metadata
+  are unchanged. New matrix covers signed endpoints, interior neighbors, fractions and exponents.
+
+| Gate | Command | RED | GREEN |
+| --- | --- | --- | --- |
+| R1 | `node --test --test-reporter=tap telemetry/tests/patch-retries.test.js` | 21 pass / 2 fail | 23 pass |
+| R2 | `node --test --test-reporter=tap telemetry/tests/hermes-time-range.test.js` | 15 pass / 8 fail | 23 pass |
+| Original reviewer adversarial suite (local, immutable) | `node --test --test-reporter=tap <reviewer-suite>` | 13 pass / 2 fail | 15 pass |
+| Default full gate | `npm --prefix telemetry test` | 132 pass / 1 obsolete mode-fixture failure after R1/R2 | 133 pass |
+
+All GREEN runs have zero failures, skips or todos. The full gate expanded from 108 by two R1
+cases and 23 R2 cases; no test was removed. The fixture correction after the full run is
+supplemental contract coverage, not retroactive RED evidence. Synthetic-only logs are retained
+under the operator's Hermes workspace in `collector-review-handoff/review-corrections-evidence/`.
+Early harness runs used a different Node binary and hit a native SQLite ABI mismatch; those logs
+are retained, not counted as product RED. Authoritative runs pin `/usr/bin/node` (v24.22.2) and
+put `/usr/bin` first for npm; existing dependencies/native artifacts were not changed.
+Exact final candidate, CI URLs and refreshed index identity are recorded in the draft PR and
+local handoff after commit, avoiding a self-referential hash in tracked docs.
+
+## Retained broader integrity blocker (R3)
+
+The reducer remains byte-identical to the original repair baseline. Two fully observed patch
+representations with the same session/native ID, same path/mode but different `new_string`
+values have distinct classifier retry signatures yet yield **1 reduced / 0 quarantined**;
+`chooseRichestCall` silently retains one. An identical-duplicate control also reduces to one.
+A separate diagnostic reproduced both results after R1/R2; its exit zero means the unresolved
+bug is present, **not** acceptance. Retry grouping tests do not establish duplicate-conflict safety.
+
+R3 is pre-existing, not introduced by this correction. It remains an explicit broader integrity
+blocker, deliberately not fixed in this R1/R2 scope. A separately authorized repair must distinguish
+two complete conflicting intents from harmless missing/truncated compaction representations.
+The parent owns that scope decision and independent rereview; green CI does not clear R3, make
+the product ready, close the task, or authorize merge/deployment.
 
 ## GitNexus and external gates
 

@@ -2,7 +2,9 @@
 
 > This document preserves the initial migration audit and its real red baseline. The subsequent
 > authorized five-defect repair pass is documented in [COLLECTOR-REPAIRS.md](COLLECTOR-REPAIRS.md):
-> 108 synthetic tests now pass. Original manifest import hashes remain unchanged; appended repair
+> 133 synthetic tests pass after R1/R2 review corrections; R3 duplicate-conflict loss remains
+> a broader integrity blocker and independent rereview is pending. Original manifest import hashes
+> remain unchanged; appended repair
 > hashes identify current bytes. Prior missing-index/failure statements below describe the
 > migration checkpoint, not current repair status. This is still a draft, not readiness approval.
 

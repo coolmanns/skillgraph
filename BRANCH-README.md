@@ -31,9 +31,12 @@ carry the regression gates forward, and keep one writer per checkout.
    CLI indexing of this isolated checkout is authorized; no embeddings or service restart.
 6. Keep the existing Collector task blocked. Parent owns its state and evidence handoff.
 
-Local migration baseline: **33 tests, 29 pass / 4 fail**. Scoped repair result: **108 tests,
-108 pass / 0 fail**, including the added patch retry regression. Original import hashes remain
-immutable; appended repair metadata records new bytes. Independent review remains open. No
+Local migration baseline: **33 tests, 29 pass / 4 fail**. The first repair passed 108 tests but
+independent review found R1/R2. Their corrections now pass **133 tests / 0 fail** plus the unchanged
+**15-test independent adversarial suite**. R3 (conflicting complete patch payloads under one native
+ID silently reduced rather than quarantined) remains an explicit broader integrity blocker.
+Original import hashes remain immutable; repair metadata records current bytes. Independent
+rereview remains open. No
 historical corpus readiness, calibration or deployment claim is made. A green diagnostic subset
 is insufficient. Read exact-head CI and final index evidence in the draft PR handoff.
 

@@ -41,8 +41,13 @@ test('episode operation keys use allowlisted stable fields while coarse signatur
   assert.equal(searchA.operationSignature, searchB.operationSignature, 'coarse analytics signature may share a scope');
   assert.notEqual(searchA.episodeOperationSignature, searchB.episodeOperationSignature, 'retry key must include query intent');
 
-  const patchA = classify('patch', { path: '/repo/a.js', patch: 'old -> first' });
-  const patchB = classify('patch', { path: '/repo/a.js', patch: 'old -> second' });
+  // Patch payloads require explicit patch mode; missing mode means replace.
+  const patchA = classify('patch', { mode: 'patch', path: '/repo/a.js', patch: 'old -> first' });
+  const patchB = classify('patch', { mode: 'patch', path: '/repo/a.js', patch: 'old -> second' });
+  assert.equal(patchA.groupable, true);
+  assert.equal(patchB.groupable, true);
+  assert.ok(patchA.episodeOperationSignature);
+  assert.ok(patchB.episodeOperationSignature);
   assert.equal(patchA.operationSignature, patchB.operationSignature);
   assert.notEqual(patchA.episodeOperationSignature, patchB.episodeOperationSignature);
 

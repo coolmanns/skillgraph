@@ -33,7 +33,9 @@ Initial migration verification: **33 tests, 29 pass, 4 fail, no skips/todos**.
 - Bounded generic extraction does not reject a source missing profile membership.
 
 The approved repair pass fixes these four failures plus the subsequently reproduced patch retry
-identity defect. Current full gate: **108 tests, 108 pass, 0 fail, no skips/todos**. Positive controls,
+identity defect. Independent review then found incorrect omitted patch mode and rounded extreme
+Date-range validation (R1/R2), now corrected with TDD. Current full gate: **133 tests, 133 pass,
+0 fail, no skips/todos**; unchanged independent adversarial suite: **15/15 pass**. Positive controls,
 role/source spoof rejection, sub-millisecond boundaries, body-read sentinels and synthetic replay
 are included. The older `collector-bounds` fixture now declares its actual default profile rather
 than relying on unverifiable membership. No test is skipped or marked expected-failure.
@@ -56,13 +58,24 @@ than relying on unverifiable membership. No test is skipped or marked expected-f
   timezone-free ISO is rejected. Text/exponent precision is bounded (128 characters/exponent scale)
   and numeric instants outside the JavaScript Date range are unsupported.
 - Patch retry keys include literal path, edit payload, mode and replace-all intent. Equivalent
-  aliases/defaults normalize; mixed, malformed, truncated or unknown fields are not groupable.
+  aliases/defaults normalize; omitted mode means **replace**, never inferred patch mode.
+  Patch/diff-only payloads without explicit patch mode are ungroupable, as are mixed, malformed,
+  truncated or unknown fields.
   Coarse path signatures are analytics only, not retry evidence. Patch text is not executed or
   semantically validated. Re-extraction can change derived keys/build hashes; old records stay intact.
 - `verified_success` requires every predicate to be supported by at least one referenced,
   role-checked/source-bound tool result, GREEN test, readback, human feedback, skill load or edit.
   Claims, notifications, compaction and RED tests alone are insufficient. Mixed evidence is allowed;
   actual receipt content and predicate relevance still need review. Partial/unknown cases stay valid.
+
+## Known broader integrity blocker (R3)
+
+Two complete patch representations sharing a session/native call ID, path and mode but differing
+in replacement content still reduce to one call with no quarantine. The unchanged reducer compares
+target/action rather than content-bound retry keys. This pre-existing loss is **not repaired** by
+R1/R2 or proven safe by identical-duplicate replay tests; it blocks broader integrity/readiness.
+A separately scoped fix must distinguish complete conflicts from missing/truncated compaction
+variants. Independent rereview of this bounded correction is also still pending.
 
 ## Evidence is not truth
 

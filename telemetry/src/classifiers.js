@@ -338,7 +338,8 @@ function patchStableFields(args) {
   const path = alias(['path', 'file_path']);
   if (['path', 'file_path'].some(field => Object.hasOwn(args, field)) && !path?.trim()) return null;
   const hasPatch = ['patch', 'diff'].some(field => Object.hasOwn(args, field));
-  const mode = Object.hasOwn(args, 'mode') ? args.mode : (hasPatch ? 'patch' : 'replace');
+  // Hermes defaults to replace even when a patch payload is present.
+  const mode = Object.hasOwn(args, 'mode') ? args.mode : 'replace';
   if (mode === 'patch') {
     const patch = alias(['patch', 'diff']);
     if (!patch?.trim() || Object.keys(args).some(key => !['path', 'file_path', 'mode', 'patch', 'diff'].includes(key))) return null;

@@ -32,8 +32,9 @@ export function historyTimestampMillis(value) {
   if (numeric) {
     // Preserve the established Hermes seconds/milliseconds threshold.
     if (numeric.n < 10_000_000_000n * 10n ** BigInt(numeric.scale)) numeric.n *= 1000n;
-    const ms = render(numeric);
-    return Math.abs(Number(ms)) <= 8.64e15 ? ms : null;
+    // Check the signed decimal before any lossy Number conversion at the endpoints.
+    const limit = 8_640_000_000_000_000n * 10n ** BigInt(numeric.scale);
+    return numeric.n >= -limit && numeric.n <= limit ? render(numeric) : null;
   }
   const iso = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:\d{2})$/.exec(text);
   if (!iso) return null;

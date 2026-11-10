@@ -54,8 +54,24 @@ test('patch payload and replacement modes have separate content-bound retry iden
   assert.equal(a.groupable, true);assert.equal(b.groupable, true);
   assert.notEqual(a.episodeOperationSignature,b.episodeOperationSignature);
   assert.notEqual(a.episodeOperationSignature,classify(replacement).episodeOperationSignature);
-  assert.equal(a.episodeOperationSignature,classify({ patch: 'synthetic patch A' }).episodeOperationSignature);
-  assert.equal(a.episodeOperationSignature,classify({ diff: 'synthetic patch A' }).episodeOperationSignature);
+  assert.equal(a.episodeOperationSignature,classify({ mode: 'patch', diff: 'synthetic patch A' }).episodeOperationSignature);
+});
+
+// Hermes patch_tool and its registered handler default to replace, not patch.
+// A patch/diff payload without mode must not acquire an explicit patch retry key.
+for (const field of ['patch', 'diff']) test(`omitted mode with ${field} payload is not groupable`, () => {
+  const payload = '*** Begin Patch\n*** Update File: /synthetic/a.js\n@@\n-old\n+new\n*** End Patch';
+  const explicit = classify({ mode: 'patch', [field]: payload });
+  assert.equal(explicit.groupable, true);
+  assert.ok(explicit.episodeOperationSignature);
+  for (const args of [{ [field]: payload }, { ...replacement, mode: undefined, [field]: payload }]) {
+    // Omit mode entirely, rather than treating undefined as a serialized field.
+    const { mode, ...omitted } = args;
+    const out = classify(omitted);
+    assert.equal(out.groupable, false);
+    assert.equal(out.episodeOperationSignature, null);
+    assert.notEqual(out.episodeOperationSignature, explicit.episodeOperationSignature);
+  }
 });
 
 for (const [label,args] of [

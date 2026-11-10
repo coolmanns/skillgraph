@@ -2,7 +2,8 @@
 
 > **Current branch status:** the Collector offline core is being brought under SDLC in a
 > draft PR; it is not production-ready. The scoped five-defect repair pass now passes
-> 108 synthetic tests; independent review and broader readiness remain pending.
+> 133 synthetic tests after R1/R2 review corrections. Independent rereview is pending;
+> R3 duplicate-native-ID conflict loss remains an explicit broader integrity blocker.
 > See [BRANCH-README.md](BRANCH-README.md), [telemetry/README.md](telemetry/README.md) and
 > [migration audit](docs/COLLECTOR-MIGRATION.md). No merge, deployment or live activation
 > is included. The legacy operational description below is preserved historical baseline,
