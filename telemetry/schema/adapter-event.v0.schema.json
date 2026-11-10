@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillgraph.local/schema/telemetry/adapter-event.v0.json",
+  "title": "SkillGraph telemetry adapter event v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_type",
+    "occurred_at",
+    "source_runtime",
+    "runtime_version",
+    "source_instance_id",
+    "adapter_id",
+    "adapter_version",
+    "source_event_key",
+    "capture_mode",
+    "confidence",
+    "pseudonym_key_version",
+    "payload"
+  ],
+  "properties": {
+    "event_id": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/uuid" },
+    "event_type": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/eventType" },
+    "schema_version": { "const": "skillgraph.telemetry.v0" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "source_runtime": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/safeIdentifier" },
+    "runtime_version": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/safeVersion" },
+    "source_instance_id": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/uuid" },
+    "adapter_id": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/safeIdentifier" },
+    "adapter_version": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/safeVersion" },
+    "source_event_key": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/hmac" },
+    "source_sequence": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "null" }
+      ]
+    },
+    "supersedes_event_id": {
+      "type": "null",
+      "description": "Envelope supersession is frozen in v0."
+    },
+    "trace_id": { "oneOf": [{ "type": "string", "pattern": "^[0-9a-f]{32}$" }, { "type": "null" }] },
+    "span_id": { "oneOf": [{ "type": "string", "pattern": "^[0-9a-f]{16}$" }, { "type": "null" }] },
+    "parent_span_id": { "oneOf": [{ "type": "string", "pattern": "^[0-9a-f]{16}$" }, { "type": "null" }] },
+    "episode_id": {
+      "oneOf": [
+        { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/uuid" },
+        { "type": "null" }
+      ]
+    },
+    "capture_mode": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/captureMode" },
+    "confidence": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/confidence" },
+    "redaction_policy_version": { "const": "skillgraph.redaction.v0" },
+    "pseudonym_key_version": { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/safeVersion" },
+    "payload": { "type": "object" }
+  },
+  "oneOf": [
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/episodeStartedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/episodeClosedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/routingDecidedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/skillStageEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/skillPlanEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/toolOperationEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/toolAttemptEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/approvalDecidedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/constraintEvaluatedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/evidenceObservedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/outcomeAssessedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/feedbackObservedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/resourceObservedEvent" },
+    { "$ref": "https://skillgraph.local/schema/telemetry/event.v0.json#/$defs/experimentAssignedEvent" }
+  ]
+}
