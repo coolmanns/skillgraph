@@ -326,6 +326,31 @@ function selectedFields(args, fields) {
   return Object.keys(selected).length > 0 ? selected : null;
 }
 
+function patchStableFields(args) {
+  const allowed = ['path', 'file_path', 'mode', 'replace_all', 'patch', 'diff',
+    'old_string', 'new_string', 'old_text', 'new_text', 'oldText', 'newText'];
+  if (Object.keys(args).some(key => !allowed.includes(key)) || containsKnownTruncation(args)) return null;
+  // Canonicalize only documented/legacy aliases with identical literal values.
+  const alias = fields => {
+    const values = fields.filter(field => Object.hasOwn(args, field)).map(field => args[field]);
+    return values.length && values.every(value => typeof value === 'string' && value === values[0]) ? values[0] : null;
+  };
+  const path = alias(['path', 'file_path']);
+  if (['path', 'file_path'].some(field => Object.hasOwn(args, field)) && !path?.trim()) return null;
+  const hasPatch = ['patch', 'diff'].some(field => Object.hasOwn(args, field));
+  const mode = Object.hasOwn(args, 'mode') ? args.mode : (hasPatch ? 'patch' : 'replace');
+  if (mode === 'patch') {
+    const patch = alias(['patch', 'diff']);
+    if (!patch?.trim() || Object.keys(args).some(key => !['path', 'file_path', 'mode', 'patch', 'diff'].includes(key))) return null;
+    return { mode, path, patch };
+  }
+  if (mode !== 'replace' || hasPatch || !path?.trim()) return null;
+  const oldString = alias(['old_string', 'old_text', 'oldText']);
+  const newString = alias(['new_string', 'new_text', 'newText']);
+  if (!oldString || newString === null || (Object.hasOwn(args, 'replace_all') && typeof args.replace_all !== 'boolean')) return null;
+  return { mode, path, old_string: oldString, new_string: newString, replace_all: args.replace_all ?? false };
+}
+
 function episodeStableFields(toolName, args) {
   if (!isPlainObject(args)) return null;
   switch (toolName) {
@@ -341,9 +366,7 @@ function episodeStableFields(toolName, args) {
     case 'write_file':
       return selectedFields(args, ['path', 'file_path', 'content', 'data', 'mode']);
     case 'patch':
-      return selectedFields(args, [
-        'path', 'file_path', 'patch', 'diff', 'old_text', 'new_text', 'oldText', 'newText',
-      ]);
+      return patchStableFields(args);
     case 'skill_view':
       return selectedFields(args, ['name', 'skill_name', 'skill', 'file_path', 'path']);
     case 'skill_manage':
