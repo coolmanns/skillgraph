@@ -1,5 +1,15 @@
 # SkillGraph — Task Routing for Gandalf
 
+> **Current branch status:** the Collector offline core is being brought under SDLC in a
+> draft PR; it is not production-ready. The scoped five-defect repair pass now passes
+> 133 synthetic tests after R1/R2 review corrections. Independent rereview is pending;
+> R3 duplicate-native-ID conflict loss remains an explicit broader integrity blocker.
+> See [BRANCH-README.md](BRANCH-README.md), [telemetry/README.md](telemetry/README.md) and
+> [migration audit](docs/COLLECTOR-MIGRATION.md). No merge, deployment or live activation
+> is included. The legacy operational description below is preserved historical baseline,
+> not verification of the current runtime. Its conflicting test-status claims are not
+> evidence for this branch.
+
 ## What It Is
 SQLite-based knowledge graph that powers `resolve_skill` — the tool Gandalf uses to route tasks to the correct skill, script, API endpoint, or workflow before executing anything. Replaced the old `<available_skills>` prompt injection approach, saving ~3,000-5,000 tokens/turn.
 

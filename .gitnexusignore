@@ -1,0 +1,17 @@
+artifacts/
+reports/
+runtime-snapshot/
+.test-scratch/
+.gitnexus/
+node_modules/
+**/node_modules/**
+**/__pycache__/**
+**/*.db*
+**/*.sqlite*
+**/*.jsonl
+**/*.log
+**/.env*
+**/*.pem
+**/*.key
+telemetry/operations/
+telemetry/mappings/

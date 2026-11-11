@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillgraph.local/schema/telemetry/enums.v0.json",
+  "title": "SkillGraph telemetry v0 enumerations",
+  "$defs": {
+    "eventType": {
+      "enum": [
+        "episode.started",
+        "episode.closed",
+        "routing.decided",
+        "skill.stage",
+        "skill.plan.created",
+        "tool.operation",
+        "tool.attempt",
+        "approval.decided",
+        "constraint.evaluated",
+        "evidence.observed",
+        "outcome.assessed",
+        "feedback.observed",
+        "resource.observed",
+        "experiment.assigned"
+      ]
+    },
+    "captureMode": {
+      "enum": ["native", "historical", "inferred", "manual", "experiment"]
+    },
+    "skillStage": {
+      "enum": ["eligible", "exposed", "retrieved", "recommended", "selected", "loaded", "active", "utilized"]
+    },
+    "observationStatus": {
+      "enum": ["observed", "succeeded", "failed", "blocked", "unknown"]
+    },
+    "activationScope": {
+      "enum": ["prompt_snapshot", "turn", "episode", "session", "unknown"]
+    },
+    "skillRole": {
+      "enum": ["primary", "supporting", "incidental", "unknown"]
+    },
+    "attemptStatus": {
+      "enum": ["succeeded", "failed", "timeout", "cancelled", "blocked", "unknown"]
+    },
+    "effectDisposition": {
+      "enum": ["none", "applied", "not_applied", "partial", "unknown"]
+    },
+    "attemptRelation": {
+      "enum": ["retry_of", "remediates", "verifies", "repeat_success_of", "independent_of"]
+    },
+    "errorClass": {
+      "enum": [
+        "invalid_or_missing_arguments",
+        "authentication",
+        "authorization_or_permission",
+        "policy_or_approval_block",
+        "missing_user_input",
+        "timeout",
+        "rate_limit",
+        "network",
+        "external_service",
+        "provider_or_model",
+        "runtime_or_adapter",
+        "tool_defect",
+        "environment_or_precondition",
+        "unknown"
+      ]
+    },
+    "responsibilityClass": {
+      "enum": [
+        "routing_failure",
+        "skill_instruction_or_content_defect",
+        "agent_adherence_failure",
+        "tool_or_adapter_failure",
+        "runtime_or_platform_failure",
+        "external_dependency_failure",
+        "policy_denied_action",
+        "user_input_dependency",
+        "unknown"
+      ]
+    },
+    "outcomeStatus": {
+      "enum": ["verified_success", "accepted", "partial", "blocked", "failed", "abandoned", "unknown"]
+    },
+    "assessmentAction": {
+      "enum": ["assert", "supersede", "retract"]
+    },
+    "constraintApplicability": {
+      "enum": ["applicable", "not_applicable", "unknown"]
+    },
+    "constraintResult": {
+      "enum": ["uncovered", "covered_pass", "covered_fail", "unknown"]
+    },
+    "approvalDecision": {
+      "enum": ["approved", "denied", "cancelled", "timed_out", "not_required", "unknown"]
+    },
+    "evidenceResult": {
+      "enum": ["pass", "fail", "supports", "contradicts", "unknown"]
+    },
+    "routingDecision": {
+      "enum": ["selected", "abstained", "deferred", "unknown"]
+    },
+    "routingStage": {
+      "enum": ["deterministic", "vector", "reranker", "runtime_native", "manual", "unknown"]
+    },
+    "episodeCloseReason": {
+      "enum": ["completed", "blocked", "failed", "abandoned", "steered", "reset", "session_end", "unknown"]
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "policy_id": "skillgraph.redaction.v0",
+  "pseudonymization": {
+    "algorithm": "HMAC-SHA-256",
+    "minimum_key_bytes": 32,
+    "key_source": "SKILLGRAPH_TELEMETRY_HMAC_KEY",
+    "key_version_required": true,
+    "plain_sha256_for_identity_forbidden": true
+  },
+  "collection": {
+    "raw_prompts": "reject",
+    "system_prompts": "reject",
+    "full_tool_arguments": "reject",
+    "full_tool_results": "reject",
+    "model_reasoning": "reject",
+    "secrets_and_credentials": "reject",
+    "principal_and_session_ids": "hmac_only",
+    "operation_targets": "class_plus_hmac_only",
+    "hidden_candidates": "reject_from_ordinary_events",
+    "richer_encrypted_payloads": "disabled"
+  },
+  "bounds": {
+    "maximum_canonical_event_bytes": 32768,
+    "maximum_string_bytes": 8192,
+    "maximum_redacted_locator_characters": 512
+  },
+  "retention": {
+    "raw_event_days": null,
+    "aggregate_days": null,
+    "status": "not_configured_for_phase_0_local_validation"
+  },
+  "deployment": {
+    "tenant_posture": "single_tenant_local_v0",
+    "live_collection": "shadow_only_after_phase_0_audit"
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "scope": "offline extraction and evidence contracts; no historical corpus",
+  "repair_passes": [{
+    "baseline_commit": "92bcf38624aabdb7790a075297e31dbb3816108b",
+    "provenance": "Scoped synthetic TDD repairs authored in the isolated PR checkout. Original files[] import hashes below are immutable baseline evidence, not current hashes. See COLLECTOR-REPAIRS.md.",
+    "current_files": [
+      {"path":"telemetry/src/adapters/hermes-history.js","sha256":"a139b88355024956c50b2acb61c48e3614946239a02c3f881296f9d574510e87"},
+      {"path":"telemetry/src/adapters/hermes-selection.js","sha256":"fa6097fb98cd6bc63753a9672919e27b886da25baec31cc6e3ef20e2f7478ec0"},
+      {"path":"telemetry/src/adapters/hermes-time.js","sha256":"8d071b960a442956e299d2a8cc9af46d836f29ac6493313feb7e52cfa6af4f84","origin":"new exact decimal timestamp helper"},
+      {"path":"telemetry/src/classifiers.js","sha256":"5b12d36d8a019f2bd91b1a42bf464519fafd53c52c58daf7a400463bc707485a"},
+      {"path":"telemetry/src/evaluation-contract.js","sha256":"5e5062e8aaab452713ce58cee05b1e10b648d54b6dc1f1ecf46c2e58453bcfec"},
+      {"path":"telemetry/tests/collector-bounds.test.js","sha256":"193871a6a24bfae44527b783cdcb08739b16c9d03144a0a2e26edeb938af149b"},
+      {"path":"telemetry/tests/parent-acceptance.test.mjs","sha256":"fd5bfbf88f01cbb598d335263298a1aceb86eb71732d862d9adea0ba04b0c2e3"},
+      {"path":"telemetry/tests/parent-boundaries.test.mjs","sha256":"e23d26a1a6956b4a5ed3a8669d2218764577624cf540f441249880a809dd35d5"},
+      {"path":"telemetry/tests/patch-retries.test.js","sha256":"4c0a71399980e7f1054bf16bfc29b1f0a68bc60d1c9e51dce04f8743f45a38b8","origin":"new synthetic regression and replay tests"}
+    ]
+  }, {
+    "baseline_commit": "2322e1fd2bddc27ed500b1ce99d044cbb7d9bcbf",
+    "provenance": "R1/R2 independent-review corrections, synthetic TDD in isolated PR checkout. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable. R3 reducer conflict loss retained as broader blocker.",
+    "current_files": [
+        {
+            "path": "telemetry/src/classifiers.js",
+            "sha256": "5b12d36d8a019f2bd91b1a42bf464519fafd53c52c58daf7a400463bc707485a",
+            "origin": "review correction to existing audited file"
+        },
+        {
+            "path": "telemetry/src/adapters/hermes-time.js",
+            "sha256": "8d071b960a442956e299d2a8cc9af46d836f29ac6493313feb7e52cfa6af4f84",
+            "origin": "review correction to existing audited file"
+        },
+        {
+            "path": "telemetry/tests/patch-retries.test.js",
+            "sha256": "4c0a71399980e7f1054bf16bfc29b1f0a68bc60d1c9e51dce04f8743f45a38b8",
+            "origin": "review correction to existing audited file"
+        },
+        {
+            "path": "telemetry/tests/classifiers.test.js",
+            "sha256": "da749516382a0078d9754dac4bcbe92b77e6cb8c13b97e43eb0dd20108b8b30c",
+            "origin": "review correction to existing audited file"
+        },
+        {
+            "path": "telemetry/tests/hermes-time-range.test.js",
+            "sha256": "71199c833d6cdbf8a3f29c9af76c9af2ce3052db3a11e54bc89ff99873dcb295",
+            "origin": "new synthetic exact Date-domain matrix"
+        }
+    ]
+  }, {
+    "baseline_commit": "7ede2fd47c6f89280f2350312a495e8e116be6da",
+    "provenance": "R3 same-native-ID payload conflict repair (card t_11313602), synthetic TDD in isolated PR checkout: open acceptance gate RED 2 pass / 1 fail, expanded to 12 cases RED 6 / 6, GREEN 12 / 12. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/classifiers.js","sha256":"5b12d36d8a019f2bd91b1a42bf464519fafd53c52c58daf7a400463bc707485a","origin":"R3 correction: export containsKnownTruncation and operationStableFields"},
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 correction: quarantine shared-field payload disagreement"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"new synthetic R3 regression tests"}
+    ]
+  }, {
+    "baseline_commit": "98e3bf33b49f06a6eae3080480aaa622f760da93",
+    "provenance": "R3 independent-review corrections (deleg_ebd159ab request_changes): per-representation alias mapping, element-wise array comparison, NFC/trim/lowercase alignment with the older checks. RED vs 98e3bf3 reducer 15 pass / 3 fail (the three review tests), GREEN 18 / 18. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 review correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 review regression tests"}
+    ]
+  }, {
+    "baseline_commit": "fdcfe87269fe629694044daef0f52ae9220c15b6",
+    "provenance": "R3 re-review corrections (deleg_2e6f5598 request_changes): compare unmapped and alias-mapped forms (fail closed on self-disagreeing aliases), resolve aliases by the classifier-normalized tool name (export safeToolName), NFC/trim/lowercase only on skill-name and action fields. RED vs fdcfe87 reducer 18 pass / 3 fail (the three re-review tests), GREEN 21 / 21. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/classifiers.js","sha256":"5b12d36d8a019f2bd91b1a42bf464519fafd53c52c58daf7a400463bc707485a","origin":"R3 re-review correction: export safeToolName"},
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 re-review correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 re-review regression tests"}
+    ]
+  }, {
+    "baseline_commit": "e002f26be3de3f31e9cb23bf9b715c1d0c1df2ba",
+    "provenance": "R3 round-3 review corrections (deleg_b00aab36 request_changes): replace two-form comparison with per-canonical-field value lists so the outcome is independent of alias spelling and a truncated alias cannot hide a full-value disagreement. RED vs e002f26 reducer 22 pass / 2 fail (the two round-3 defect tests), GREEN 25 / 25. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 round-3 correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 round-3 regression tests"}
+    ]
+  }, {
+    "baseline_commit": "d0d754ade7dff2c5cafad570504ed54992bf5f0a",
+    "provenance": "R3 round-4 review correction (deleg_a4631d97 request_changes): drop null-valued stable fields (absent alias) before comparison so a patch-mode representation without path reduces with one that has it; classifiers.js unchanged. RED vs d0d754a reducer 26 pass / 1 fail (the round-4 control), GREEN 27 / 27. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 round-4 correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 round-4 regression tests"}
+    ]
+}],
+  "files": [
+    {
+      "path": "telemetry/src/adapters/hermes-history.js",
+      "origin": "collector/telemetry/src/adapters/hermes-history.js",
+      "source_sha256": "2ec6c74cb74048a1af81a589b5d5330e71a785dd95299827fc01d573ac72d7d9",
+      "sha256": "2ec6c74cb74048a1af81a589b5d5330e71a785dd95299827fc01d573ac72d7d9",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/adapters/hermes-selection.js",
+      "origin": "collector/telemetry/src/adapters/hermes-selection.js",
+      "source_sha256": "a3a06638e02dd1edd242b34cc82f555f8b73cd458a6eafec6e8efd9f29da858f",
+      "sha256": "a3a06638e02dd1edd242b34cc82f555f8b73cd458a6eafec6e8efd9f29da858f",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/canonical-json.js",
+      "origin": "collector/telemetry/src/canonical-json.js",
+      "source_sha256": "18feae77f8d7fbd05d19fa419157feac60f1b3416abef71715595a690c80a5e3",
+      "sha256": "18feae77f8d7fbd05d19fa419157feac60f1b3416abef71715595a690c80a5e3",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/classifiers.js",
+      "origin": "collector/telemetry/src/classifiers.js",
+      "source_sha256": "3d3e8d070c79261d874063f6053d9916d5412b190423cdb0d25f32cf699b05d7",
+      "sha256": "3d3e8d070c79261d874063f6053d9916d5412b190423cdb0d25f32cf699b05d7",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/evaluation-contract.js",
+      "origin": "collector/telemetry/src/evaluation-contract.js",
+      "source_sha256": "f72850c92ef0b7a2fda8ca03cb75c549af063032cce24efbd16ff1a3cec052fb",
+      "sha256": "f72850c92ef0b7a2fda8ca03cb75c549af063032cce24efbd16ff1a3cec052fb",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/event.js",
+      "origin": "collector/telemetry/src/event.js",
+      "source_sha256": "67868db7e8deeeff3ed2bfc95c8ad42d077b1521b27f0d56054cc271ce0ebe33",
+      "sha256": "67868db7e8deeeff3ed2bfc95c8ad42d077b1521b27f0d56054cc271ce0ebe33",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/hashes.js",
+      "origin": "collector/telemetry/src/hashes.js",
+      "source_sha256": "6e2fbc83242c9af7495f176e6583d594ccf7e85e7fcc04adf9f5a83e0837632e",
+      "sha256": "6e2fbc83242c9af7495f176e6583d594ccf7e85e7fcc04adf9f5a83e0837632e",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/hermes-reducer.js",
+      "origin": "collector/telemetry/src/hermes-reducer.js",
+      "source_sha256": "c4340227f97bd44019dc4c0f5cd8106b9a9bcd53371e8ee84213dbeb8f233d5d",
+      "sha256": "c4340227f97bd44019dc4c0f5cd8106b9a9bcd53371e8ee84213dbeb8f233d5d",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/identity.js",
+      "origin": "collector/telemetry/src/identity.js",
+      "source_sha256": "68b0db333bf8ecc39e9a3c079eda1219b7e7ea239be860fa556b2ff5b0423687",
+      "sha256": "68b0db333bf8ecc39e9a3c079eda1219b7e7ea239be860fa556b2ff5b0423687",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/ids.js",
+      "origin": "collector/telemetry/src/ids.js",
+      "source_sha256": "46fc8b0fcdeb8266b991dde4e0e61f4c9c9f34902c2afe1822014cc2337796e4",
+      "sha256": "46fc8b0fcdeb8266b991dde4e0e61f4c9c9f34902c2afe1822014cc2337796e4",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/privacy.js",
+      "origin": "collector/telemetry/src/privacy.js",
+      "source_sha256": "ab2f49f6fb96f6f255160d38c0233f0fabcb166786f3510210a43d6d592f8227",
+      "sha256": "ab2f49f6fb96f6f255160d38c0233f0fabcb166786f3510210a43d6d592f8227",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/receipt-validator.js",
+      "origin": "collector/telemetry/src/receipt-validator.js",
+      "source_sha256": "d5f4086c6baffbfb75ae6a0f4448ee3b2e3a64d370aaab6295c4adf245b08c1e",
+      "sha256": "d5f4086c6baffbfb75ae6a0f4448ee3b2e3a64d370aaab6295c4adf245b08c1e",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/schema.js",
+      "origin": "collector/telemetry/src/schema.js",
+      "source_sha256": "a60add93b683669dc36cbd438255439efdb48343c4a22af944ff6a6059887ed8",
+      "sha256": "a60add93b683669dc36cbd438255439efdb48343c4a22af944ff6a6059887ed8",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/src/wrapper-attribution.js",
+      "origin": "collector/telemetry/src/wrapper-attribution.js",
+      "source_sha256": "98a83e307bf616d2fade8bca768bd82c95e271b26d62539ebe4b1cc055b71eab",
+      "sha256": "98a83e307bf616d2fade8bca768bd82c95e271b26d62539ebe4b1cc055b71eab",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/schema/adapter-event.v0.schema.json",
+      "origin": "collector/telemetry/schema/adapter-event.v0.schema.json",
+      "source_sha256": "7cca060269be336ddf0ce30a173ff33d32abd06cef76d7f7df8818f353ca2c66",
+      "sha256": "7cca060269be336ddf0ce30a173ff33d32abd06cef76d7f7df8818f353ca2c66",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/schema/enums.schema.json",
+      "origin": "collector/telemetry/schema/enums.schema.json",
+      "source_sha256": "b22af6142d04b1cf3e031633045c1c42ee8bdd2768483a8e32f7660d119c56a8",
+      "sha256": "b22af6142d04b1cf3e031633045c1c42ee8bdd2768483a8e32f7660d119c56a8",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/schema/event.v0.schema.json",
+      "origin": "collector/telemetry/schema/event.v0.schema.json",
+      "source_sha256": "6fe43147afd95ea90c1ac5b671a7030e4715167d5962ae88cfe4c6a85b802078",
+      "sha256": "6fe43147afd95ea90c1ac5b671a7030e4715167d5962ae88cfe4c6a85b802078",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/policies/redaction-v0.json",
+      "origin": "collector/telemetry/policies/redaction-v0.json",
+      "source_sha256": "e51293477b53a6bdb4c903f247a9f9c51a87d9668fcde23aca1771678a5dc8f8",
+      "sha256": "e51293477b53a6bdb4c903f247a9f9c51a87d9668fcde23aca1771678a5dc8f8",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/package-lock.json",
+      "origin": "collector/telemetry/package-lock.json",
+      "source_sha256": "33d46c933bdb01b34794541ad1d3a2cfbd36a5948afddd6b3b8aace239717f90",
+      "sha256": "33d46c933bdb01b34794541ad1d3a2cfbd36a5948afddd6b3b8aace239717f90",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/evaluation-contract.test.js",
+      "origin": "collector/telemetry/tests/evaluation-contract.test.js",
+      "source_sha256": "f5a7b94c0afaaf9cc0293e3be26778238572d51372e44beb575cd0fdde47790c",
+      "sha256": "f5a7b94c0afaaf9cc0293e3be26778238572d51372e44beb575cd0fdde47790c",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/receipt-validator.test.js",
+      "origin": "collector/telemetry/tests/receipt-validator.test.js",
+      "source_sha256": "8636bc2ccdf669cdd9e5df3ae7c8ce742ba6385f7f295245c25e3ec5bed392bf",
+      "sha256": "8636bc2ccdf669cdd9e5df3ae7c8ce742ba6385f7f295245c25e3ec5bed392bf",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/wrapper-attribution.test.js",
+      "origin": "collector/telemetry/tests/wrapper-attribution.test.js",
+      "source_sha256": "977171a65ec4d79efb8be5e02240d157cbdf016f42d3416d488fa9b2ac30394d",
+      "sha256": "977171a65ec4d79efb8be5e02240d157cbdf016f42d3416d488fa9b2ac30394d",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/collector-bounds.test.js",
+      "origin": "collector/telemetry/tests/collector-bounds.test.js",
+      "source_sha256": "58aa08486cb11d2e6bb6b82da6bcb8b5ddb27f8ae584a7ad743e8729d9e0b429",
+      "sha256": "58aa08486cb11d2e6bb6b82da6bcb8b5ddb27f8ae584a7ad743e8729d9e0b429",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/classifiers.test.js",
+      "origin": "collector/telemetry/tests/classifiers.test.js",
+      "source_sha256": "3d45b5e0e818226a0918865c6996f34e699ac08e59b949c8e0ca555a1f10edaf",
+      "sha256": "3d45b5e0e818226a0918865c6996f34e699ac08e59b949c8e0ca555a1f10edaf",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/hashing-identity.test.js",
+      "origin": "collector/telemetry/tests/hashing-identity.test.js",
+      "source_sha256": "99bc352bdc4b155cfc801e3d119579c87dd5d2505400c2ca126e72e30a673878",
+      "sha256": "99bc352bdc4b155cfc801e3d119579c87dd5d2505400c2ca126e72e30a673878",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/privacy.test.js",
+      "origin": "collector/telemetry/tests/privacy.test.js",
+      "source_sha256": "7282a701e93800818e758d55bb7ceeda6fe08c20afccb41e4cc0981d28802c61",
+      "sha256": "7282a701e93800818e758d55bb7ceeda6fe08c20afccb41e4cc0981d28802c61",
+      "adapted": false
+    },
+    {
+      "path": "telemetry/tests/helpers.js",
+      "origin": "collector/telemetry/tests/helpers.js (pure event helpers only)",
+      "source_sha256": "29361d4628727865e8b4c709f0ae7d0b676a77546b324bd96c0c3504cda22eca",
+      "sha256": "7848c701b79a66e7df8c30723aa91bcc0db91feab96e7d8b13b9af8e72ded49a",
+      "adapted": true
+    },
+    {
+      "path": "telemetry/tests/selected-history.test.js",
+      "origin": "collector/telemetry/tests/selected-history.test.js (extraction tests only; CLI deferred)",
+      "source_sha256": "68a835467b56358a1a70d4a9ffa3af63c88d660a382791e46afddf86ea253cc3",
+      "sha256": "eb905bc9a4dff7fdcaed7f0297447222a94096c151c673b581f9f81e145df5ef",
+      "adapted": true
+    },
+    {
+      "path": "telemetry/tests/parent-acceptance.test.mjs",
+      "origin": "parent synthetic acceptance fixture",
+      "source_sha256": "dae7ac10fb2318f8334691f5a91bdc0d44d07b18d63b6cc839ad6417b08a6abf",
+      "sha256": "c1bf37b3343a5eff8aa563319c3568842df73bee6a3dbce941a45d6197ba8f8c",
+      "adapted": true
+    },
+    {
+      "path": "telemetry/tests/parent-boundaries.test.mjs",
+      "origin": "parent synthetic boundary fixture",
+      "source_sha256": "790ee816f6bbf0d474a8eb14fa533f04419db5bc6359b703d9f863821c648ecf",
+      "sha256": "8d095ba9d71e35016939d61d8e1c3e22d127b331755631ceaaffaae961189064",
+      "adapted": true
+    }
+  ]
+}

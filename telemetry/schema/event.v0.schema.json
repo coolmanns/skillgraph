@@ -1,0 +1,564 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillgraph.local/schema/telemetry/event.v0.json",
+  "title": "SkillGraph runtime-neutral telemetry event v0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "schema_version",
+    "occurred_at",
+    "ingested_at",
+    "source_runtime",
+    "runtime_version",
+    "source_instance_id",
+    "adapter_id",
+    "adapter_version",
+    "source_event_key",
+    "source_sequence",
+    "capture_mode",
+    "confidence",
+    "redaction_policy_version",
+    "pseudonym_key_version",
+    "payload",
+    "payload_hash",
+    "event_content_hash"
+  ],
+  "properties": {
+    "event_id": { "$ref": "#/$defs/uuid" },
+    "event_type": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/eventType" },
+    "schema_version": { "const": "skillgraph.telemetry.v0" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "ingested_at": { "type": "string", "format": "date-time" },
+    "source_runtime": { "$ref": "#/$defs/safeIdentifier" },
+    "runtime_version": { "$ref": "#/$defs/safeVersion" },
+    "source_instance_id": { "$ref": "#/$defs/uuid" },
+    "adapter_id": { "$ref": "#/$defs/safeIdentifier" },
+    "adapter_version": { "$ref": "#/$defs/safeVersion" },
+    "source_event_key": { "$ref": "#/$defs/hmac" },
+    "source_sequence": {
+      "description": "Dense adapter-assigned occurrence order scoped to episode_id; never a raw source row ID.",
+      "oneOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }]
+    },
+    "supersedes_event_id": {
+      "type": "null",
+      "description": "Envelope supersession is frozen in v0; typed assessment events carry their own correction semantics."
+    },
+    "trace_id": { "oneOf": [{ "type": "string", "pattern": "^[0-9a-f]{32}$" }, { "type": "null" }] },
+    "span_id": { "oneOf": [{ "type": "string", "pattern": "^[0-9a-f]{16}$" }, { "type": "null" }] },
+    "parent_span_id": { "oneOf": [{ "type": "string", "pattern": "^[0-9a-f]{16}$" }, { "type": "null" }] },
+    "episode_id": { "oneOf": [{ "$ref": "#/$defs/uuid" }, { "type": "null" }] },
+    "capture_mode": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/captureMode" },
+    "confidence": { "$ref": "#/$defs/confidence" },
+    "redaction_policy_version": { "const": "skillgraph.redaction.v0" },
+    "pseudonym_key_version": { "$ref": "#/$defs/safeVersion" },
+    "payload": { "type": "object" },
+    "payload_hash": { "$ref": "#/$defs/sha256" },
+    "event_content_hash": { "$ref": "#/$defs/sha256" }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/episodeStartedEvent" },
+    { "$ref": "#/$defs/episodeClosedEvent" },
+    { "$ref": "#/$defs/routingDecidedEvent" },
+    { "$ref": "#/$defs/skillStageEvent" },
+    { "$ref": "#/$defs/skillPlanEvent" },
+    { "$ref": "#/$defs/toolOperationEvent" },
+    { "$ref": "#/$defs/toolAttemptEvent" },
+    { "$ref": "#/$defs/approvalDecidedEvent" },
+    { "$ref": "#/$defs/constraintEvaluatedEvent" },
+    { "$ref": "#/$defs/evidenceObservedEvent" },
+    { "$ref": "#/$defs/outcomeAssessedEvent" },
+    { "$ref": "#/$defs/feedbackObservedEvent" },
+    { "$ref": "#/$defs/resourceObservedEvent" },
+    { "$ref": "#/$defs/experimentAssignedEvent" }
+  ],
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "nullableSha256": {
+      "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+    },
+    "hmac": {
+      "type": "string",
+      "pattern": "^hmac-sha256:[0-9a-f]{64}$"
+    },
+    "nullableHmac": {
+      "oneOf": [{ "$ref": "#/$defs/hmac" }, { "type": "null" }]
+    },
+    "safeIdentifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@+-]*$"
+    },
+    "safeVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._+:/@-]*$"
+    },
+    "safeLabel": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256,
+      "pattern": "^[^\\r\\n\\u0000-\\u001f]*$"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "skillIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed_skill_key", "name_snapshot", "source_channel", "identity_method", "identity_confidence"],
+      "properties": {
+        "observed_skill_key": {
+          "type": "string",
+          "pattern": "^obs:v0:[a-z0-9._-]+:[0-9a-f]{16}:[0-9a-f]{64}$"
+        },
+        "skill_uid": {
+          "oneOf": [{ "$ref": "#/$defs/uuid" }, { "type": "null" }]
+        },
+        "revision_id": {
+          "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }]
+        },
+        "name_snapshot": { "$ref": "#/$defs/safeLabel" },
+        "source_channel": { "$ref": "#/$defs/safeIdentifier" },
+        "artifact_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "artifact_scope": {
+          "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }]
+        },
+        "hash_provenance": {
+          "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }]
+        },
+        "normalized_content_hash": { "$ref": "#/$defs/nullableSha256" },
+        "normalizer_version": {
+          "oneOf": [{ "$ref": "#/$defs/safeVersion" }, { "type": "null" }]
+        },
+        "artifact_observed_at": {
+          "oneOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+        },
+        "identity_method": { "$ref": "#/$defs/safeIdentifier" },
+        "identity_confidence": { "$ref": "#/$defs/confidence" },
+        "identity_review_ref": {
+          "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }]
+        }
+      }
+    },
+    "episodeStartedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_session_hmac", "boundary_method"],
+      "properties": {
+        "source_session_hmac": { "$ref": "#/$defs/hmac" },
+        "source_turn_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "principal_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "profile_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "model": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "provider": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "environment_fingerprint": { "$ref": "#/$defs/nullableSha256" },
+        "task_class_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "authorized_view_fingerprint": { "$ref": "#/$defs/nullableSha256" },
+        "boundary_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "episodeClosedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "boundary_method"],
+      "properties": {
+        "reason": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/episodeCloseReason" },
+        "boundary_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "routingDecidedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision", "stage", "resolver_id", "resolver_version", "candidate_count"],
+      "properties": {
+        "decision": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/routingDecision" },
+        "stage": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/routingStage" },
+        "resolver_id": { "$ref": "#/$defs/safeIdentifier" },
+        "resolver_version": { "$ref": "#/$defs/safeVersion" },
+        "config_hash": { "$ref": "#/$defs/nullableSha256" },
+        "policy_hash": { "$ref": "#/$defs/nullableSha256" },
+        "authorized_view_fingerprint": { "$ref": "#/$defs/nullableSha256" },
+        "candidate_set_fingerprint": { "$ref": "#/$defs/nullableSha256" },
+        "candidate_count": { "type": "integer", "minimum": 0 },
+        "selected_skill": { "oneOf": [{ "$ref": "#/$defs/skillIdentity" }, { "type": "null" }] },
+        "margin": { "oneOf": [{ "type": "number" }, { "type": "null" }] },
+        "randomized": { "type": "boolean" },
+        "selection_probability": { "oneOf": [{ "$ref": "#/$defs/confidence" }, { "type": "null" }] }
+      }
+    },
+    "skillStagePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "status", "skill", "derivation_method"],
+      "properties": {
+        "stage": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/skillStage" },
+        "status": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/observationStatus" },
+        "skill": { "$ref": "#/$defs/skillIdentity" },
+        "load_mode": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "activation_scope": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/activationScope" },
+        "active_from": { "oneOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }] },
+        "active_through": { "oneOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }] },
+        "activation_payload_sha256": { "$ref": "#/$defs/nullableSha256" },
+        "source_tool_call_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "requested_skill_alias_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "derivation_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "skillPlanPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "skills", "derivation_method"],
+      "properties": {
+        "plan_id": { "$ref": "#/$defs/uuid" },
+        "skills": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["node_id", "skill", "role"],
+            "properties": {
+              "node_id": { "$ref": "#/$defs/uuid" },
+              "skill": { "$ref": "#/$defs/skillIdentity" },
+              "role": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/skillRole" }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from_node_id", "to_node_id", "relation"],
+            "properties": {
+              "from_node_id": { "$ref": "#/$defs/uuid" },
+              "to_node_id": { "$ref": "#/$defs/uuid" },
+              "relation": { "enum": ["before", "depends_on", "supports"] }
+            }
+          }
+        },
+        "derivation_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "toolOperationPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation_id", "tool_name", "normalized_operation", "episode_operation_key", "operation_signature", "derivation_method"],
+      "properties": {
+        "operation_id": { "$ref": "#/$defs/uuid" },
+        "tool_name": { "$ref": "#/$defs/safeIdentifier" },
+        "normalized_operation": { "$ref": "#/$defs/safeIdentifier" },
+        "target_class": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "target_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "source_tool_call_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "episode_operation_key": { "$ref": "#/$defs/hmac" },
+        "operation_signature": { "$ref": "#/$defs/nullableHmac" },
+        "idempotency_key_hash": { "$ref": "#/$defs/nullableHmac" },
+        "derivation_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "toolAttemptPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attempt_id", "operation_id", "tool_name", "source_tool_call_hmac", "status", "effect_disposition"],
+      "dependentRequired": {
+        "error_class": ["responsibility_class", "classifier_id", "classifier_version", "classifier_hash", "classification_confidence", "classification_method"],
+        "responsibility_class": ["error_class", "classifier_id", "classifier_version", "classifier_hash", "classification_confidence", "classification_method"],
+        "classifier_id": ["error_class", "responsibility_class", "classifier_version", "classifier_hash", "classification_confidence", "classification_method"],
+        "classifier_version": ["error_class", "responsibility_class", "classifier_id", "classifier_hash", "classification_confidence", "classification_method"],
+        "classifier_hash": ["error_class", "responsibility_class", "classifier_id", "classifier_version", "classification_confidence", "classification_method"],
+        "classification_confidence": ["error_class", "responsibility_class", "classifier_id", "classifier_version", "classifier_hash", "classification_method"],
+        "classification_method": ["error_class", "responsibility_class", "classifier_id", "classifier_version", "classifier_hash", "classification_confidence"]
+      },
+      "if": {
+        "properties": { "error_class": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/errorClass" } },
+        "required": ["error_class"]
+      },
+      "then": {
+        "properties": { "status": { "enum": ["failed", "timeout", "cancelled", "blocked"] } }
+      },
+      "properties": {
+        "attempt_id": { "$ref": "#/$defs/uuid" },
+        "operation_id": { "$ref": "#/$defs/uuid" },
+        "tool_name": { "$ref": "#/$defs/safeIdentifier" },
+        "source_tool_call_hmac": { "$ref": "#/$defs/hmac" },
+        "status": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/attemptStatus" },
+        "runtime_status": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "runtime_error_code": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "error_class": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/errorClass" },
+        "responsibility_class": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/responsibilityClass" },
+        "classifier_id": { "$ref": "#/$defs/safeIdentifier" },
+        "classifier_version": { "$ref": "#/$defs/safeVersion" },
+        "classifier_hash": { "$ref": "#/$defs/sha256" },
+        "classification_confidence": { "$ref": "#/$defs/confidence" },
+        "classification_method": { "$ref": "#/$defs/safeIdentifier" },
+        "started_at": { "oneOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }] },
+        "ended_at": { "oneOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }] },
+        "duration_ms": { "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }] },
+        "effect_disposition": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/effectDisposition" }
+      }
+    },
+    "approvalDecidedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approval_id", "decision", "method"],
+      "properties": {
+        "approval_id": { "$ref": "#/$defs/uuid" },
+        "decision": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/approvalDecision" },
+        "policy_hash": { "$ref": "#/$defs/nullableSha256" },
+        "constraint_hash": { "$ref": "#/$defs/nullableSha256" },
+        "method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "constraintEvaluatedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evaluation_id", "skill", "constraint_hash", "applicability", "result", "evaluator_id", "evaluator_version"],
+      "properties": {
+        "evaluation_id": { "$ref": "#/$defs/uuid" },
+        "skill": { "$ref": "#/$defs/skillIdentity" },
+        "constraint_hash": { "$ref": "#/$defs/sha256" },
+        "applicability": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/constraintApplicability" },
+        "result": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/constraintResult" },
+        "evaluator_id": { "$ref": "#/$defs/safeIdentifier" },
+        "evaluator_version": { "$ref": "#/$defs/safeVersion" },
+        "evaluator_hash": { "$ref": "#/$defs/nullableSha256" }
+      }
+    },
+    "evidenceObservedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_id", "subject_type", "subject_id", "evidence_type", "result", "strength", "independence_class", "derivation_method"],
+      "properties": {
+        "evidence_id": { "$ref": "#/$defs/uuid" },
+        "subject_type": { "enum": ["episode", "operation", "attempt", "constraint", "outcome"] },
+        "subject_id": { "$ref": "#/$defs/uuid" },
+        "source_tool_call_hmac": { "$ref": "#/$defs/nullableHmac" },
+        "evidence_type": { "$ref": "#/$defs/safeIdentifier" },
+        "result": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/evidenceResult" },
+        "verifier_id": { "oneOf": [{ "$ref": "#/$defs/safeIdentifier" }, { "type": "null" }] },
+        "verifier_version": { "oneOf": [{ "$ref": "#/$defs/safeVersion" }, { "type": "null" }] },
+        "artifact_hash": { "$ref": "#/$defs/nullableSha256" },
+        "state_hash": { "$ref": "#/$defs/nullableSha256" },
+        "strength": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "independence_class": { "enum": ["independent", "runtime_assertion", "user_signal", "inferred", "unknown"] },
+        "redacted_locator": { "$ref": "#/$defs/nullableHmac" },
+        "derivation_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "outcomeAssessedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assessment_id", "action", "status", "evidence_tier", "evaluator_id", "evaluator_version"],
+      "properties": {
+        "assessment_id": { "$ref": "#/$defs/uuid" },
+        "action": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/assessmentAction" },
+        "target_assessment_id": { "oneOf": [{ "$ref": "#/$defs/uuid" }, { "type": "null" }] },
+        "status": { "$ref": "https://skillgraph.local/schema/telemetry/enums.v0.json#/$defs/outcomeStatus" },
+        "evidence_tier": { "type": "integer", "minimum": 1, "maximum": 7 },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/uuid" }
+        },
+        "evaluator_id": { "$ref": "#/$defs/safeIdentifier" },
+        "evaluator_version": { "$ref": "#/$defs/safeVersion" }
+      }
+    },
+    "feedbackObservedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["feedback_id", "feedback_type", "sentiment", "derivation_method"],
+      "properties": {
+        "feedback_id": { "$ref": "#/$defs/uuid" },
+        "feedback_type": { "enum": ["acceptance", "correction", "rework", "rollback", "rating", "unknown"] },
+        "sentiment": { "enum": ["positive", "negative", "mixed", "neutral", "unknown"] },
+        "rating": { "oneOf": [{ "type": "number", "minimum": 0, "maximum": 1 }, { "type": "null" }] },
+        "derivation_method": { "$ref": "#/$defs/safeIdentifier" }
+      }
+    },
+    "resourceObservedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource_id", "scope_type", "scope_id"],
+      "properties": {
+        "resource_id": { "$ref": "#/$defs/uuid" },
+        "scope_type": { "enum": ["episode", "operation", "attempt"] },
+        "scope_id": { "$ref": "#/$defs/uuid" },
+        "model_calls": { "type": "integer", "minimum": 0 },
+        "input_tokens": { "type": "integer", "minimum": 0 },
+        "output_tokens": { "type": "integer", "minimum": 0 },
+        "cache_read_tokens": { "type": "integer", "minimum": 0 },
+        "cache_write_tokens": { "type": "integer", "minimum": 0 },
+        "reasoning_tokens": { "type": "integer", "minimum": 0 },
+        "cost_usd": { "type": "number", "minimum": 0 },
+        "wall_time_ms": { "type": "number", "minimum": 0 }
+      }
+    },
+    "experimentAssignedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["experiment_id", "trial_id", "treatment", "assignment_probability", "randomization_unit_hmac", "seed_hash"],
+      "allOf": [
+        {
+          "if": { "properties": { "treatment": { "const": "no_skill" } }, "required": ["treatment"] },
+          "then": { "properties": { "skill": { "type": "null" } }, "required": ["skill"] }
+        },
+        {
+          "if": { "properties": { "treatment": { "const": "skill_version" } }, "required": ["treatment"] },
+          "then": { "properties": { "skill": { "$ref": "#/$defs/skillIdentity" } }, "required": ["skill"] }
+        }
+      ],
+      "properties": {
+        "experiment_id": { "$ref": "#/$defs/uuid" },
+        "trial_id": { "$ref": "#/$defs/uuid" },
+        "treatment": { "enum": ["no_skill", "skill_version"] },
+        "skill": { "oneOf": [{ "$ref": "#/$defs/skillIdentity" }, { "type": "null" }] },
+        "assignment_probability": { "$ref": "#/$defs/confidence" },
+        "randomization_unit_hmac": { "$ref": "#/$defs/hmac" },
+        "seed_hash": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "episodeStartedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "episode.started" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/episodeStartedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "episodeClosedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "episode.closed" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/episodeClosedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "routingDecidedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "routing.decided" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/routingDecidedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "skillStageEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "skill.stage" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/skillStagePayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "skillPlanEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "skill.plan.created" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/skillPlanPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "toolOperationEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "tool.operation" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/toolOperationPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "toolAttemptEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "tool.attempt" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/toolAttemptPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "approvalDecidedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "approval.decided" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/approvalDecidedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "constraintEvaluatedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "constraint.evaluated" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/constraintEvaluatedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "evidenceObservedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "evidence.observed" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/evidenceObservedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "outcomeAssessedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "outcome.assessed" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/outcomeAssessedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "feedbackObservedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "feedback.observed" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/feedbackObservedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "resourceObservedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "resource.observed" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/resourceObservedPayload" }
+      },
+      "required": ["episode_id"]
+    },
+    "experimentAssignedEvent": {
+      "type": "object",
+      "properties": {
+        "event_type": { "const": "experiment.assigned" },
+        "episode_id": { "$ref": "#/$defs/uuid" },
+        "payload": { "$ref": "#/$defs/experimentAssignedPayload" }
+      },
+      "required": ["episode_id"]
+    }
+  }
+}
