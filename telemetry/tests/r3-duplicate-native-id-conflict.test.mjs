@@ -109,3 +109,42 @@ test('R3: the reducer does not mutate its input rows', () => {
   reduceHermesToolRows({ sourceInstanceId: SOURCE, hmacKey: TEST_HMAC_KEY, callRows: rows, resultRows: [] });
   assert.equal(JSON.stringify(rows), before);
 });
+
+// --- independent review of 98e3bf3: alias, array and normalization cases ---
+
+test('R3 review: a legacy alias on an incomplete representation is compared with the canonical field', () => {
+  assertPayloadConflict(reduceSameNativeId([{ path: complete.path, old_text: 'OTHER' }, complete]));
+  assertPayloadConflict(reduceSameNativeId([{ path: complete.path, new_text: 'OTHER' }, complete]));
+  assertPayloadConflict(reduceSameNativeId([{ file_path: '/synthetic/other.txt' }, complete]));
+  assertPayloadConflict(reduceSameNativeId([{ path: complete.path, diff: 'Y' }, { mode: 'patch', path: complete.path, patch: 'X' }]));
+});
+
+test('R3 review control: equal values under an alias and the canonical name still reduce', () => {
+  assertReducedOnce(reduceSameNativeId([{ path: complete.path, old_text: 'old' }, complete]));
+  assertReducedOnce(reduceSameNativeId([{ file_path: complete.path }, complete]));
+});
+
+test('R3 review: arrays are compared element by element; one truncated element exempts only itself', () => {
+  assertPayloadConflict(reduceSameNativeId([{ items: ['DIFF', 'b...[truncated]'] }, { items: ['a', 'bc'] }], 'custom_tool'));
+  assertPayloadConflict(reduceSameNativeId([{ items: ['a', 'b...[truncated]'] }, { items: ['a', 'bc', 'EXTRA'] }], 'custom_tool'));
+  assertPayloadConflict(reduceSameNativeId([
+    { edits: [{ old: 'a', new: 'X' }, { old: 'b...[truncated]' }] },
+    { edits: [{ old: 'a', new: 'Y' }, { old: 'bb' }] },
+  ], 'custom_tool'));
+  assertPayloadConflict(reduceSameNativeId([{ items: ['a'] }, { items: ['a', 'b'] }], 'custom_tool'));
+});
+
+test('R3 review control: a truncated array element exempts only itself', () => {
+  assertReducedOnce(reduceSameNativeId([{ items: ['a', 'b...[truncated]'] }, { items: ['a', 'bc'] }], 'custom_tool'));
+});
+
+test('R3 review control: normalizations of the older checks are not payload conflicts', () => {
+  assertReducedOnce(reduceSameNativeId([{ name: 'caf\u00e9' }, { name: 'cafe\u0301' }], 'skill_view'));
+  assertReducedOnce(reduceSameNativeId([{ name: 'x' }, { name: 'x ' }], 'skill_view'));
+  assertReducedOnce(reduceSameNativeId([{ ...complete, mode: 'Replace' }, complete]));
+});
+
+test('R3 review: whitespace and case still matter outside the normalized fields', () => {
+  assertPayloadConflict(reduceSameNativeId([{ command: 'rm -rf build' }, { command: 'rm -rf Build' }], 'terminal'));
+  assertPayloadConflict(reduceSameNativeId([complete, { ...complete, new_string: 'new ' }]));
+});

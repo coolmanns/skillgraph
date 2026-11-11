@@ -166,9 +166,49 @@ function isPlainRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
+function isTruncatedString(value) {
+  return typeof value === 'string' && containsKnownTruncation(value);
+}
+
+// Documented argument aliases, per tool. Each representation is mapped onto the canonical name
+// before comparison, even when it is incomplete, so `old_text` on one side meets `old_string` on
+// the other. A representation whose own aliases disagree keeps them unmapped.
+const ARGUMENT_ALIASES = {
+  patch: { path: ['path', 'file_path'], old_string: ['old_string', 'old_text', 'oldText'],
+    new_string: ['new_string', 'new_text', 'newText'], patch: ['patch', 'diff'] },
+  read_file: { path: ['path', 'file_path'] },
+  write_file: { path: ['path', 'file_path'], content: ['content', 'data'] },
+  skill_view: { name: ['name', 'skill_name', 'skill'], file_path: ['file_path', 'path'] },
+  skill_manage: { name: ['name', 'skill_name', 'skill'], file_path: ['file_path', 'path'] },
+};
+// Fields the older target/action/skill checks already compare after normalization
+// (NFC + trim, lowercased for actions); payload comparison must not be stricter than they are.
+const TRIMMED_FIELDS = new Set(['name']);
+const ACTION_FIELDS = new Set(['action', 'operation', 'mode']);
+
+function comparableRepresentation(toolName, args) {
+  const out = { ...args };
+  for (const [canonical, names] of Object.entries(ARGUMENT_ALIASES[toolName] ?? {})) {
+    const present = names.filter((name) => Object.hasOwn(args, name) && args[name] !== undefined);
+    if (present.length === 0) continue;
+    const values = present.map((name) => canonicalize(args[name]));
+    if (values.some((value) => value !== values[0])) continue;
+    for (const name of present) delete out[name];
+    out[canonical] = args[present[0]];
+  }
+  for (const [key, value] of Object.entries(out)) {
+    if (typeof value !== 'string' || isTruncatedString(value)) continue;
+    if (ACTION_FIELDS.has(key)) out[key] = value.normalize('NFC').trim().toLowerCase();
+    else if (TRIMMED_FIELDS.has(key) && toolName.startsWith('skill_')) out[key] = value.normalize('NFC').trim();
+  }
+  return out;
+}
+
 // True when two representations of the same value genuinely disagree. A key present on only one
-// side is a compaction omission and a value carrying the known truncation marker is a compaction
-// variant; neither counts. Everything else is compared canonically (key order is irrelevant).
+// side is a compaction omission and a string carrying the known truncation marker is a compaction
+// variant; neither counts. Arrays are compared element by element: a truncated element exempts only
+// itself, and any length difference is a conflict (the marker proves a string was cut, not that an
+// array lost elements). Strings compare in NFC; everything else canonically (key order irrelevant).
 function payloadsDisagree(left, right) {
   if (isPlainRecord(left) && isPlainRecord(right)) {
     return Object.keys(left).some((key) => Object.hasOwn(right, key)
@@ -176,17 +216,31 @@ function payloadsDisagree(left, right) {
       && right[key] !== undefined
       && payloadsDisagree(left[key], right[key]));
   }
-  if (containsKnownTruncation(left) || containsKnownTruncation(right)) return false;
+  if (Array.isArray(left) && Array.isArray(right)) {
+    if (left.length !== right.length) return true;
+    return left.some((item, index) => payloadsDisagree(item, right[index]));
+  }
+  if (isTruncatedString(left) || isTruncatedString(right)) return false;
+  if (typeof left === 'string' && typeof right === 'string') {
+    return left.normalize('NFC') !== right.normalize('NFC');
+  }
   return canonicalize(left) !== canonicalize(right);
 }
 
-// R3: complete representations sharing one native call ID must agree on every shared field, both
-// as retained and after default/alias normalization (so an implicit replace_all=false contradicts
-// an explicit true). Otherwise the identity is quarantined instead of silently choosing one.
+// R3: representations sharing one native call ID must agree on every shared field, both as
+// retained (aliases mapped, see comparableRepresentation) and, for complete representations, after
+// the classifier's default normalization (so an implicit replace_all=false contradicts an explicit
+// true). Otherwise the identity is quarantined instead of silently choosing one.
 function stablePayloadConflict(calls, toolName) {
   const items = calls
     .filter((call) => call.args.valid && isPlainRecord(call.args.value))
-    .map((call) => ({ raw: call.args.value, stable: operationStableFields(toolName, call.args.value) }));
+    .map((call) => {
+      const stable = operationStableFields(toolName, call.args.value);
+      return {
+        raw: comparableRepresentation(toolName, call.args.value),
+        stable: stable && comparableRepresentation(toolName, stable),
+      };
+    });
   for (let i = 0; i < items.length; i += 1) {
     for (let j = i + 1; j < items.length; j += 1) {
       const left = items[i];

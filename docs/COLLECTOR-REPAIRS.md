@@ -124,7 +124,7 @@ put `/usr/bin` first for npm; existing dependencies/native artifacts were not ch
 Exact final candidate, CI URLs and refreshed index identity are recorded in the draft PR and
 local handoff after commit, avoiding a self-referential hash in tracked docs.
 
-## R3: same-native-ID payload conflicts (repaired, pending independent review)
+## R3: same-native-ID payload conflicts (repaired; review corrections applied)
 
 **Defect (pre-existing, retained through R1/R2).** Two fully observed patch representations with
 the same session/native ID, same path/mode but different `new_string` values had distinct classifier
@@ -132,38 +132,56 @@ signatures yet yielded **1 reduced / 0 quarantined**: `chooseRichestCall` silent
 the reducer compared only target and action. Before the fix it was an expected-red open acceptance
 gate in its own CI job (`7ede2fd`: 2 controls pass, the R3 case fails; regression job unchanged).
 
-**Rule.** Representations of one native call must agree on every field they share. A field present
-on only one side is a compaction omission, and a value ending in the known `...[truncated]` marker
-is a compaction variant; neither is a conflict. Any other shared-field disagreement adds
-`operation_payload` to the `material_variant_conflict` quarantine instead of choosing a variant.
-Complete representations are also compared after the classifier's default and alias normalization
-(`operationStableFields`), so an implicit `replace_all: false` contradicts an explicit `true`, and
-`old_text` contradicts a different `old_string`. Comparison is canonical (key order irrelevant) and
-applies to every tool, not only `patch`. A value cut without the marker is treated as a conflict
-(fail closed): a prefix cannot be told apart from a genuinely different complete intent.
+**Rule.** Representations of one native call must agree on every field they share; otherwise
+`operation_payload` is added to the `material_variant_conflict` quarantine instead of choosing a
+variant. All tools. Before comparing, each representation is made comparable on its own:
 
-**TDD evidence.** `telemetry/tests/r3-duplicate-native-id-conflict.test.mjs` (now part of `npm test`;
+- documented aliases are mapped to one name (`path`/`file_path`, `old_string`/`old_text`/`oldText`,
+  `new_string`/`new_text`/`newText`, `patch`/`diff`, skill `name`/`skill_name`/`skill`, …), even on an
+  incomplete representation; a representation whose own aliases disagree keeps them unmapped;
+- the normalizations the older checks already apply are kept: strings compare in NFC, skill names
+  are trimmed, and `action`/`operation`/`mode` are trimmed and lowercased. Everything else, including
+  whitespace and case in commands or replacement text, must match exactly.
+
+Then: a field present on only one side is a compaction omission (allowed); a string ending in the
+known `...[truncated]` marker is a compaction variant (allowed); arrays compare element by element,
+so a truncated element exempts only itself and any length difference is a conflict (the marker
+proves a string was cut, not that an array lost elements). Complete representations are also
+compared after the classifier's default normalization (`operationStableFields`), so an implicit
+`replace_all: false` contradicts an explicit `true`. Values cut without the marker fail closed.
+
+**TDD evidence.** `telemetry/tests/r3-duplicate-native-id-conflict.test.mjs` (part of `npm test`;
 the `open-gates` job and `test:open-gates` script were removed with it):
 
 | Step | Result |
 |---|---|
 | Open gate at `7ede2fd` (CI) | 2 pass / 1 fail (R3 assertion only) |
-| Expanded suite before the fix (RED) | 12 tests: 6 controls pass, 6 conflict cases fail |
-| After the fix (GREEN) | 12 / 12 |
-| Full gate `npm --prefix telemetry test` | 145 / 145 (133 + 12), 0 skipped/todo |
+| First suite before the fix (RED) | 12 tests: 5 controls + 1 immutability test pass, 6 conflict cases fail |
+| First fix `98e3bf3` (GREEN) | 12 / 12; full gate 145 / 145 |
+| Independent review of `98e3bf3` | request changes: alias on an incomplete representation and one truncated element exempting a whole array were missed; byte-exact comparison was stricter than the older checks |
+| Review tests against the `98e3bf3` reducer (RED) | 18 tests: 15 pass, 3 fail (exactly the three review tests) |
+| Corrections (GREEN) | 18 / 18; full gate `npm --prefix telemetry test` 151 / 151, 0 skipped/todo |
 | Unchanged independent adversarial suite (2322e1fd reviewer) | 15 / 15 |
 | Unchanged reviewer extra probes (8e0550de rereview) | 4 / 4 |
 
-Controls cover identical duplicates, a compacted field-missing representation, a truncated value,
-key order with an explicit default, and an optional-field compaction on `read_file`. Conflict cases
-cover `new_string`, `replace_all` (explicit and implicit default), a legacy alias, an incomplete
-representation contradicting a shared field, non-patch tools (`terminal`, `read_file`) and a
-three-representation group. A further test checks that the reducer does not mutate input rows.
+The reviewer's own probe set, rerun unchanged against the corrections, flips exactly the reported
+cases (3 normalization cases now reduce; 2 alias and 3 array false negatives now quarantine) and
+leaves every benign-compaction case reducing.
 
-**Limits.** Synthetic evidence only; the effect on real retained history (how often compaction
-changes a shared field without the truncation marker) is unmeasured and would surface as
-quarantines, not silent choices. The parent owns independent rereview; green CI does not make the
-product ready, close the task, or authorize merge/deployment.
+**Limits and follow-ups (not fixed here).**
+- A patch representation with no `mode` and a `patch` payload versus an explicit `mode: patch` with
+  the same payload reduces: a missing field is treated as an omission, and Hermes defaults an omitted
+  mode to `replace`. Whether real compaction drops keys at all is unverified.
+- Only the legacy `...[truncated]` marker is recognized; the newer Hermes context-compressor marker
+  is treated as a conflict (fail closed). Reviewer count on this host: 0 rows with the newer marker.
+- Pre-existing: arguments nested ~2000+ levels can throw `RangeError` and abort the whole reduction
+  (base and head); `parseJsonObject` throws on objects containing `1e999`. A depth cap belongs in a
+  separate change.
+- The reviewer ran an aggregate-only, read-only count over local history (`~/.hermes/state.db`) for
+  `98e3bf3` and found 0 additional quarantines. That read was outside its brief and the card's
+  retention check was not done first; treat it as indicative only, not as data-review evidence.
+- Synthetic evidence. The parent owns rereview; green CI does not make the product ready, close the
+  task, or authorize merge/deployment.
 
 ## GitNexus and external gates
 
