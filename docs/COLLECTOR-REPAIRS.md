@@ -139,16 +139,22 @@ variant. All tools. Before comparing, each representation is made comparable on 
 - documented aliases are mapped to one name (`path`/`file_path`, `old_string`/`old_text`/`oldText`,
   `new_string`/`new_text`/`newText`, `patch`/`diff`, skill `name`/`skill_name`/`skill`, …), even on an
   incomplete representation; a representation whose own aliases disagree keeps them unmapped;
-- the normalizations the older checks already apply are kept: strings compare in NFC, skill names
-  are trimmed, and `action`/`operation`/`mode` are trimmed and lowercased. Everything else, including
-  whitespace and case in commands or replacement text, must match exactly.
+- the normalizations the older checks already apply are kept, on those top-level fields only:
+  skill names (`name`/`skill_name`/`skill` on `skill_*` tools) compare after NFC + trim, and
+  `action`/`operation`/`mode` after NFC + trim + lowercase (all three, where the older check uses
+  the first present). Everything else, including Unicode form, whitespace and case in commands or
+  replacement text, must match exactly;
+- aliases are resolved for the classifier-normalized tool name (`Patch`, ` patch` → `patch`).
 
-Then: a field present on only one side is a compaction omission (allowed); a string ending in the
+Each pair is compared in every form (as retained with the field normalizations only, with aliases
+mapped, and — for complete representations — after default normalization); disagreement in any
+form is a conflict, so a representation whose own aliases disagree cannot hide a conflict.
+Then, within each form: a field present on only one side is a compaction omission (allowed); a string ending in the
 known `...[truncated]` marker is a compaction variant (allowed); arrays compare element by element,
 so a truncated element exempts only itself and any length difference is a conflict (the marker
 proves a string was cut, not that an array lost elements). Complete representations are also
-compared after the classifier's default normalization (`operationStableFields`), so an implicit
-`replace_all: false` contradicts an explicit `true`. Values cut without the marker fail closed.
+an implicit `replace_all: false` contradicts an explicit `true` in the default-normalized form
+(`operationStableFields`). Values cut without the marker fail closed.
 
 **TDD evidence.** `telemetry/tests/r3-duplicate-native-id-conflict.test.mjs` (part of `npm test`;
 the `open-gates` job and `test:open-gates` script were removed with it):
@@ -160,20 +166,24 @@ the `open-gates` job and `test:open-gates` script were removed with it):
 | First fix `98e3bf3` (GREEN) | 12 / 12; full gate 145 / 145 |
 | Independent review of `98e3bf3` | request changes: alias on an incomplete representation and one truncated element exempting a whole array were missed; byte-exact comparison was stricter than the older checks |
 | Review tests against the `98e3bf3` reducer (RED) | 18 tests: 15 pass, 3 fail (exactly the three review tests) |
-| Corrections (GREEN) | 18 / 18; full gate `npm --prefix telemetry test` 151 / 151, 0 skipped/todo |
+| Corrections `fdcfe87` (GREEN) | 18 / 18; full gate 151 / 151 |
+| Re-review of `fdcfe87` | request changes: self-disagreeing aliases on one representation hid a same-key conflict (regression vs `98e3bf3`); aliases looked up by raw tool name; NFC applied more widely than the older checks |
+| Re-review tests against the `fdcfe87` reducer (RED) | 21 tests: 18 pass, 3 fail (exactly the three re-review tests) |
+| Re-review corrections (GREEN) | 21 / 21; full gate `npm --prefix telemetry test` 154 / 154, 0 skipped/todo |
 | Unchanged independent adversarial suite (2322e1fd reviewer) | 15 / 15 |
 | Unchanged reviewer extra probes (8e0550de rereview) | 4 / 4 |
 
-The reviewer's own probe set, rerun unchanged against the corrections, flips exactly the reported
-cases (3 normalization cases now reduce; 2 alias and 3 array false negatives now quarantine) and
-leaves every benign-compaction case reducing.
+The reviewers' own probe sets, rerun unchanged against each correction, flip exactly the reported
+cases (round 1: 3 normalization cases reduce, 2 alias and 3 array false negatives quarantine;
+round 2: 4 self-alias cases and 3 NFC-outside-normalized-field cases quarantine, mixed-case tool
+names resolve) and leave every benign-compaction case reducing.
 
 **Limits and follow-ups (not fixed here).**
 - A patch representation with no `mode` and a `patch` payload versus an explicit `mode: patch` with
   the same payload reduces: a missing field is treated as an omission, and Hermes defaults an omitted
   mode to `replace`. Whether real compaction drops keys at all is unverified.
 - Only the legacy `...[truncated]` marker is recognized; the newer Hermes context-compressor marker
-  is treated as a conflict (fail closed). Reviewer count on this host: 0 rows with the newer marker.
+  is treated as a conflict (fail closed).
 - Pre-existing: arguments nested ~2000+ levels can throw `RangeError` and abort the whole reduction
   (base and head); `parseJsonObject` throws on objects containing `1e999`. A depth cap belongs in a
   separate change.

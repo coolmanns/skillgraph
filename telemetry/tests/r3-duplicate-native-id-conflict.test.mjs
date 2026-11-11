@@ -148,3 +148,23 @@ test('R3 review: whitespace and case still matter outside the normalized fields'
   assertPayloadConflict(reduceSameNativeId([{ command: 'rm -rf build' }, { command: 'rm -rf Build' }], 'terminal'));
   assertPayloadConflict(reduceSameNativeId([complete, { ...complete, new_string: 'new ' }]));
 });
+
+// --- re-review of fdcfe87: self-disagreeing aliases, tool-name normalization, normalization scope ---
+
+test('R3 re-review: a representation whose own aliases disagree still conflicts with another on the same key', () => {
+  assertPayloadConflict(reduceSameNativeId([
+    { path: '/p', old_string: 'a', old_text: 'b', new_string: 'n' }, { path: '/p', old_text: 'a' }]));
+  assertPayloadConflict(reduceSameNativeId([{ path: '/x', file_path: '/y' }, { file_path: '/x' }], 'read_file'));
+  assertPayloadConflict(reduceSameNativeId([{ name: 'a', skill: 'b' }, { skill: 'a' }], 'skill_view'));
+});
+
+test('R3 re-review: aliases are resolved for the normalized tool name, as in the classifiers', () => {
+  for (const name of ['Patch', ' patch', 'PATCH']) {
+    assertPayloadConflict(reduceSameNativeId([{ path: complete.path, old_text: 'OTHER' }, complete], name));
+  }
+});
+
+test('R3 re-review: NFC is applied only where the older checks normalize; replacement text is exact', () => {
+  assertPayloadConflict(reduceSameNativeId([{ ...complete, new_string: 'caf\u00e9' }, { ...complete, new_string: 'cafe\u0301' }]));
+  assertReducedOnce(reduceSameNativeId([{ name: 'caf\u00e9' }, { name: 'cafe\u0301' }], 'skill_view'));
+});

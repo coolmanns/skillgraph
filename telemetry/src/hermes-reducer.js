@@ -8,6 +8,7 @@ import {
   extractSkillStableFields,
   operationStableFields,
   parseJsonObject,
+  safeToolName,
 } from './classifiers.js';
 
 function groupKey(sessionId, toolCallId) {
@@ -170,9 +171,10 @@ function isTruncatedString(value) {
   return typeof value === 'string' && containsKnownTruncation(value);
 }
 
-// Documented argument aliases, per tool. Each representation is mapped onto the canonical name
-// before comparison, even when it is incomplete, so `old_text` on one side meets `old_string` on
-// the other. A representation whose own aliases disagree keeps them unmapped.
+// Documented argument aliases, per (normalized) tool name. Each representation is mapped onto the
+// canonical name before comparison, even when it is incomplete, so `old_text` on one side meets
+// `old_string` on the other. A representation whose own aliases disagree keeps them unmapped; the
+// unmapped form is compared as well (see stablePayloadConflict), so this cannot hide a conflict.
 const ARGUMENT_ALIASES = {
   patch: { path: ['path', 'file_path'], old_string: ['old_string', 'old_text', 'oldText'],
     new_string: ['new_string', 'new_text', 'newText'], patch: ['patch', 'diff'] },
@@ -181,14 +183,16 @@ const ARGUMENT_ALIASES = {
   skill_view: { name: ['name', 'skill_name', 'skill'], file_path: ['file_path', 'path'] },
   skill_manage: { name: ['name', 'skill_name', 'skill'], file_path: ['file_path', 'path'] },
 };
-// Fields the older target/action/skill checks already compare after normalization
-// (NFC + trim, lowercased for actions); payload comparison must not be stricter than they are.
-const TRIMMED_FIELDS = new Set(['name']);
+// The older checks compare skill names after NFC + trim and the action/operation/mode field after
+// NFC + trim + lowercase; payload comparison applies the same normalization to those top-level
+// fields only (to all of action/operation/mode, not just the first present) and is exact elsewhere.
+const SKILL_NAME_FIELDS = new Set(['name', 'skill_name', 'skill']);
 const ACTION_FIELDS = new Set(['action', 'operation', 'mode']);
 
-function comparableRepresentation(toolName, args) {
+function comparableRepresentation(toolName, args, { mapAliases = true } = {}) {
+  const tool = safeToolName(toolName);
   const out = { ...args };
-  for (const [canonical, names] of Object.entries(ARGUMENT_ALIASES[toolName] ?? {})) {
+  for (const [canonical, names] of Object.entries(mapAliases ? (ARGUMENT_ALIASES[tool] ?? {}) : {})) {
     const present = names.filter((name) => Object.hasOwn(args, name) && args[name] !== undefined);
     if (present.length === 0) continue;
     const values = present.map((name) => canonicalize(args[name]));
@@ -199,7 +203,7 @@ function comparableRepresentation(toolName, args) {
   for (const [key, value] of Object.entries(out)) {
     if (typeof value !== 'string' || isTruncatedString(value)) continue;
     if (ACTION_FIELDS.has(key)) out[key] = value.normalize('NFC').trim().toLowerCase();
-    else if (TRIMMED_FIELDS.has(key) && toolName.startsWith('skill_')) out[key] = value.normalize('NFC').trim();
+    else if (SKILL_NAME_FIELDS.has(key) && tool.startsWith('skill_')) out[key] = value.normalize('NFC').trim();
   }
   return out;
 }
@@ -208,7 +212,7 @@ function comparableRepresentation(toolName, args) {
 // side is a compaction omission and a string carrying the known truncation marker is a compaction
 // variant; neither counts. Arrays are compared element by element: a truncated element exempts only
 // itself, and any length difference is a conflict (the marker proves a string was cut, not that an
-// array lost elements). Strings compare in NFC; everything else canonically (key order irrelevant).
+// array lost elements). Everything else compares canonically and exactly (key order irrelevant).
 function payloadsDisagree(left, right) {
   if (isPlainRecord(left) && isPlainRecord(right)) {
     return Object.keys(left).some((key) => Object.hasOwn(right, key)
@@ -221,23 +225,24 @@ function payloadsDisagree(left, right) {
     return left.some((item, index) => payloadsDisagree(item, right[index]));
   }
   if (isTruncatedString(left) || isTruncatedString(right)) return false;
-  if (typeof left === 'string' && typeof right === 'string') {
-    return left.normalize('NFC') !== right.normalize('NFC');
-  }
   return canonicalize(left) !== canonicalize(right);
 }
 
-// R3: representations sharing one native call ID must agree on every shared field, both as
-// retained (aliases mapped, see comparableRepresentation) and, for complete representations, after
-// the classifier's default normalization (so an implicit replace_all=false contradicts an explicit
-// true). Otherwise the identity is quarantined instead of silently choosing one.
+// R3: representations sharing one native call ID must agree on every shared field. Each pair is
+// compared in three forms, and any disagreement is a conflict (fail closed): as retained with the
+// field normalizations only, with aliases mapped (see comparableRepresentation), and, for complete
+// representations, after the classifier's default normalization (so an implicit replace_all=false
+// contradicts an explicit true). Otherwise the identity is quarantined instead of choosing one.
 function stablePayloadConflict(calls, toolName) {
   const items = calls
     .filter((call) => call.args.valid && isPlainRecord(call.args.value))
     .map((call) => {
       const stable = operationStableFields(toolName, call.args.value);
       return {
-        raw: comparableRepresentation(toolName, call.args.value),
+        forms: [
+          comparableRepresentation(toolName, call.args.value, { mapAliases: false }),
+          comparableRepresentation(toolName, call.args.value),
+        ],
         stable: stable && comparableRepresentation(toolName, stable),
       };
     });
@@ -245,7 +250,7 @@ function stablePayloadConflict(calls, toolName) {
     for (let j = i + 1; j < items.length; j += 1) {
       const left = items[i];
       const right = items[j];
-      if (payloadsDisagree(left.raw, right.raw)
+      if (left.forms.some((form, index) => payloadsDisagree(form, right.forms[index]))
         || (left.stable && right.stable && payloadsDisagree(left.stable, right.stable))) {
         return ['operation_payload'];
       }

@@ -267,7 +267,7 @@ function firstString(object, fields) {
   return null;
 }
 
-function safeToolName(toolName) {
+export function safeToolName(toolName) {
   const normalized = String(toolName ?? '').normalize('NFC').trim().toLowerCase()
     .replace(/[^a-z0-9._:/@+-]+/g, '_')
     .replace(/^[_:./@+-]+/, '')
