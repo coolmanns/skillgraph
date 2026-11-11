@@ -134,27 +134,27 @@ gate in its own CI job (`7ede2fd`: 2 controls pass, the R3 case fails; regressio
 
 **Rule.** Representations of one native call must agree on every field they share; otherwise
 `operation_payload` is added to the `material_variant_conflict` quarantine instead of choosing a
-variant. All tools. Before comparing, each representation is made comparable on its own:
+variant. All tools. Each representation maps every canonical field to the list of values it carries
+under any documented alias (`path`/`file_path`, `old_string`/`old_text`/`oldText`,
+`new_string`/`new_text`/`newText`, `patch`/`diff`, `content`/`data`, skill `name`/`skill_name`/`skill`,
+…; aliases resolved for the classifier-normalized tool name, so `Patch` → `patch`). For every field
+both representations carry, all values from both sides must agree pairwise. Consequently:
 
-- documented aliases are mapped to one name (`path`/`file_path`, `old_string`/`old_text`/`oldText`,
-  `new_string`/`new_text`/`newText`, `patch`/`diff`, skill `name`/`skill_name`/`skill`, …), even on an
-  incomplete representation; a representation whose own aliases disagree keeps them unmapped;
-- the normalizations the older checks already apply are kept, on those top-level fields only:
-  skill names (`name`/`skill_name`/`skill` on `skill_*` tools) compare after NFC + trim, and
-  `action`/`operation`/`mode` after NFC + trim + lowercase (all three, where the older check uses
-  the first present). Everything else, including Unicode form, whitespace and case in commands or
-  replacement text, must match exactly;
-- aliases are resolved for the classifier-normalized tool name (`Patch`, ` patch` → `patch`).
+- the outcome does not depend on which alias spelling either side uses;
+- a representation whose own aliases disagree conflicts with any partner carrying that field, and
+  duplicates of such a self-contradictory representation also quarantine (fail closed);
+- a truncated alias value cannot hide a disagreement between full values.
 
-Each pair is compared in every form (as retained with the field normalizations only, with aliases
-mapped, and — for complete representations — after default normalization); disagreement in any
-form is a conflict, so a representation whose own aliases disagree cannot hide a conflict.
-Then, within each form: a field present on only one side is a compaction omission (allowed); a string ending in the
-known `...[truncated]` marker is a compaction variant (allowed); arrays compare element by element,
-so a truncated element exempts only itself and any length difference is a conflict (the marker
-proves a string was cut, not that an array lost elements). Complete representations are also
-an implicit `replace_all: false` contradicts an explicit `true` in the default-normalized form
-(`operationStableFields`). Values cut without the marker fail closed.
+Values compare as follows: a field present on only one side is a compaction omission (allowed); a
+string ending in the known `...[truncated]` marker is a compaction variant compatible with any value
+(allowed); arrays compare element by element, so a truncated element exempts only itself and any
+length difference is a conflict (the marker proves a string was cut, not that an array lost
+elements); everything else compares canonically and exactly, including Unicode form, whitespace and
+case. The only normalizations are those the older checks already apply, on those top-level fields:
+skill names on `skill_*` tools after NFC + trim, and `action`/`operation`/`mode` after NFC + trim +
+lowercase (all three, where the older check uses the first present). Complete representations are
+also compared after the classifier's default normalization (`operationStableFields`), so an implicit
+`replace_all: false` contradicts an explicit `true`. Values cut without the marker fail closed.
 
 **TDD evidence.** `telemetry/tests/r3-duplicate-native-id-conflict.test.mjs` (part of `npm test`;
 the `open-gates` job and `test:open-gates` script were removed with it):
@@ -169,14 +169,18 @@ the `open-gates` job and `test:open-gates` script were removed with it):
 | Corrections `fdcfe87` (GREEN) | 18 / 18; full gate 151 / 151 |
 | Re-review of `fdcfe87` | request changes: self-disagreeing aliases on one representation hid a same-key conflict (regression vs `98e3bf3`); aliases looked up by raw tool name; NFC applied more widely than the older checks |
 | Re-review tests against the `fdcfe87` reducer (RED) | 21 tests: 18 pass, 3 fail (exactly the three re-review tests) |
-| Re-review corrections (GREEN) | 21 / 21; full gate `npm --prefix telemetry test` 154 / 154, 0 skipped/todo |
+| Re-review corrections `e002f26` (GREEN) | 21 / 21; full gate 154 / 154 |
+| Round-3 review of `e002f26` | request changes: a self-disagreeing alias set could still hide a conflict depending on the partner's alias spelling or a truncated alias; docs still cited a figure from the unauthorized read |
+| Round-3 tests against the `e002f26` reducer (RED) | 24 tests: 22 pass, 2 fail (exactly the two defect tests; controls pass) |
+| Per-field value lists (GREEN) | 25 / 25 (incl. pinned fail-closed duplicate case); full gate `npm --prefix telemetry test` 158 / 158, 0 skipped/todo |
 | Unchanged independent adversarial suite (2322e1fd reviewer) | 15 / 15 |
 | Unchanged reviewer extra probes (8e0550de rereview) | 4 / 4 |
 
 The reviewers' own probe sets, rerun unchanged against each correction, flip exactly the reported
 cases (round 1: 3 normalization cases reduce, 2 alias and 3 array false negatives quarantine;
 round 2: 4 self-alias cases and 3 NFC-outside-normalized-field cases quarantine, mixed-case tool
-names resolve) and leave every benign-compaction case reducing.
+names resolve; round 3: all 8 reported alias-spelling and truncated-alias cases quarantine) and
+leave every benign-compaction case reducing.
 
 **Limits and follow-ups (not fixed here).**
 - A patch representation with no `mode` and a `patch` payload versus an explicit `mode: patch` with
@@ -187,9 +191,9 @@ names resolve) and leave every benign-compaction case reducing.
 - Pre-existing: arguments nested ~2000+ levels can throw `RangeError` and abort the whole reduction
   (base and head); `parseJsonObject` throws on objects containing `1e999`. A depth cap belongs in a
   separate change.
-- The reviewer ran an aggregate-only, read-only count over local history (`~/.hermes/state.db`) for
-  `98e3bf3` and found 0 additional quarantines. That read was outside its brief and the card's
-  retention check was not done first; treat it as indicative only, not as data-review evidence.
+- During review round 1 the reviewer read local history (`~/.hermes/state.db`) outside its brief and
+  before the card's retention check. Nothing from that read is used as evidence here; later rounds
+  were barred from real-history access.
 - Synthetic evidence. The parent owns rereview; green CI does not make the product ready, close the
   task, or authorize merge/deployment.
 

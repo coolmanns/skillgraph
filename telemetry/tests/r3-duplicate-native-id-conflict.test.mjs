@@ -168,3 +168,36 @@ test('R3 re-review: NFC is applied only where the older checks normalize; replac
   assertPayloadConflict(reduceSameNativeId([{ ...complete, new_string: 'caf\u00e9' }, { ...complete, new_string: 'cafe\u0301' }]));
   assertReducedOnce(reduceSameNativeId([{ name: 'caf\u00e9' }, { name: 'cafe\u0301' }], 'skill_view'));
 });
+
+// --- re-review of e002f26: outcome must not depend on how the partner spells the alias ---
+
+test('R3 re-review 3: self-disagreeing aliases conflict whatever alias the partner uses', () => {
+  for (const partner of [{ path: '/x' }, { file_path: '/x' }]) {
+    assertPayloadConflict(reduceSameNativeId([{ path: '/x', file_path: '/y' }, partner], 'read_file'));
+  }
+  for (const partner of [{ path: '/p', old_string: 'a' }, { path: '/p', old_text: 'a' }, { path: '/p', oldText: 'a' }]) {
+    assertPayloadConflict(reduceSameNativeId([{ path: '/p', old_string: 'a', old_text: 'b', new_string: 'n' }, partner]));
+  }
+  for (const partner of [{ name: 'a' }, { skill: 'a' }, { skill_name: 'a' }]) {
+    assertPayloadConflict(reduceSameNativeId([{ name: 'a', skill: 'b' }, partner], 'skill_view'));
+  }
+  assertPayloadConflict(reduceSameNativeId([{ path: '/p', content: 'x', data: 'y' }, { path: '/p', content: 'x' }], 'write_file'));
+});
+
+test('R3 re-review 3: a truncated alias does not hide a disagreement between full values', () => {
+  for (const partner of [{ path: '/p', old_string: 'abcxyz' }, { path: '/p', oldText: 'abcxyz' }]) {
+    assertPayloadConflict(reduceSameNativeId([{ path: '/p', old_string: 'ab...[truncated]', old_text: 'abcdef' }, partner]));
+  }
+});
+
+test('R3 re-review 3 control: consistent aliases and truncated aliases still reduce', () => {
+  assertReducedOnce(reduceSameNativeId([{ path: '/p', old_text: 'a' }, { path: '/p', old_string: 'a' }]));
+  assertReducedOnce(reduceSameNativeId([{ path: '/p', file_path: '/p' }, { path: '/p' }], 'read_file'));
+  assertReducedOnce(reduceSameNativeId([{ path: '/p', old_string: 'ab...[truncated]', old_text: 'abcdef' }, { path: '/p', oldText: 'abcdef' }]));
+  assertReducedOnce(reduceSameNativeId([{ path: '/p', content: 'x', data: 'x' }, { path: '/p', data: 'x' }], 'write_file'));
+});
+
+test('R3 re-review 3: duplicates of a self-contradictory representation fail closed', () => {
+  const ambiguous = { path: '/p', old_string: 'a', old_text: 'b', new_string: 'n' };
+  assertPayloadConflict(reduceSameNativeId([ambiguous, { ...ambiguous }]));
+});

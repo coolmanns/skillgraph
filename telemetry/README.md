@@ -35,7 +35,7 @@ Initial migration verification: **33 tests, 29 pass, 4 fail, no skips/todos**.
 The approved repair pass fixes these four failures plus the subsequently reproduced patch retry
 identity defect. Independent review then found incorrect omitted patch mode and rounded extreme
 Date-range validation (R1/R2), now corrected with TDD, followed by the R3 same-native-ID payload
-conflict repair. Current full gate: **154 tests, 154 pass,
+conflict repair. Current full gate: **158 tests, 158 pass,
 0 fail, no skips/todos**; unchanged independent adversarial suite: **15/15 pass**. Positive controls,
 role/source spoof rejection, sub-millisecond boundaries, body-read sentinels and synthetic replay
 are included. The older `collector-bounds` fixture now declares its actual default profile rather
@@ -77,8 +77,8 @@ gets the same treatment: a separate, visibly failing CI job that is not part of 
 Representations of one native tool call must agree on every field they share; otherwise the
 identity is quarantined (`operation_payload`) instead of silently keeping the "richest" variant.
 Missing fields and values with the `...[truncated]` marker are compaction, not conflict. See
-`docs/COLLECTOR-REPAIRS.md` for the rule, TDD evidence and limits. Two independent review rounds
-requested changes; both are applied and await rereview.
+`docs/COLLECTOR-REPAIRS.md` for the rule, TDD evidence and limits. Three independent review rounds
+requested changes; all are applied and await rereview.
 
 ## Evidence is not truth
 
