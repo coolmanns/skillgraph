@@ -4,7 +4,9 @@ import {
   argumentRichness,
   classifyOperation,
   classifyResultVariant,
+  containsKnownTruncation,
   extractSkillStableFields,
+  operationStableFields,
   parseJsonObject,
 } from './classifiers.js';
 
@@ -158,6 +160,44 @@ function stableOperationConflict(calls, toolName, hmacKey) {
   if (targets.size > 1) conflicts.push('operation_target');
   if (actions.size > 1) conflicts.push('operation_action');
   return conflicts;
+}
+
+function isPlainRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+// True when two representations of the same value genuinely disagree. A key present on only one
+// side is a compaction omission and a value carrying the known truncation marker is a compaction
+// variant; neither counts. Everything else is compared canonically (key order is irrelevant).
+function payloadsDisagree(left, right) {
+  if (isPlainRecord(left) && isPlainRecord(right)) {
+    return Object.keys(left).some((key) => Object.hasOwn(right, key)
+      && left[key] !== undefined
+      && right[key] !== undefined
+      && payloadsDisagree(left[key], right[key]));
+  }
+  if (containsKnownTruncation(left) || containsKnownTruncation(right)) return false;
+  return canonicalize(left) !== canonicalize(right);
+}
+
+// R3: complete representations sharing one native call ID must agree on every shared field, both
+// as retained and after default/alias normalization (so an implicit replace_all=false contradicts
+// an explicit true). Otherwise the identity is quarantined instead of silently choosing one.
+function stablePayloadConflict(calls, toolName) {
+  const items = calls
+    .filter((call) => call.args.valid && isPlainRecord(call.args.value))
+    .map((call) => ({ raw: call.args.value, stable: operationStableFields(toolName, call.args.value) }));
+  for (let i = 0; i < items.length; i += 1) {
+    for (let j = i + 1; j < items.length; j += 1) {
+      const left = items[i];
+      const right = items[j];
+      if (payloadsDisagree(left.raw, right.raw)
+        || (left.stable && right.stable && payloadsDisagree(left.stable, right.stable))) {
+        return ['operation_payload'];
+      }
+    }
+  }
+  return [];
 }
 
 function chooseRichestCall(group, toolName) {
@@ -331,6 +371,7 @@ export function reduceHermesToolRows({
     const toolName = group.calls[0].toolName;
     if (toolName === 'skill_view') conflicts.push(...stableSkillConflict(group.calls, hmacKey));
     else conflicts.push(...stableOperationConflict(group.calls, toolName, hmacKey));
+    conflicts.push(...stablePayloadConflict(group.calls, toolName));
 
     const chosenCall = chooseRichestCall(group, toolName);
     const toolCallHmac = toolCallSubjectHmac(group, hmacKey, sourceInstanceId);

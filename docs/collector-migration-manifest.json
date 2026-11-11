@@ -7,7 +7,7 @@
       {"path":"telemetry/src/adapters/hermes-history.js","sha256":"a139b88355024956c50b2acb61c48e3614946239a02c3f881296f9d574510e87"},
       {"path":"telemetry/src/adapters/hermes-selection.js","sha256":"fa6097fb98cd6bc63753a9672919e27b886da25baec31cc6e3ef20e2f7478ec0"},
       {"path":"telemetry/src/adapters/hermes-time.js","sha256":"8d071b960a442956e299d2a8cc9af46d836f29ac6493313feb7e52cfa6af4f84","origin":"new exact decimal timestamp helper"},
-      {"path":"telemetry/src/classifiers.js","sha256":"2edf386b022c5fc2be63f908db16447308a642d851af68d355276fb57ae110b8"},
+      {"path":"telemetry/src/classifiers.js","sha256":"8a9f53b5675fba5d988f6eaaa7e981d04e8289e930e4a1abe501812b7d079a3f"},
       {"path":"telemetry/src/evaluation-contract.js","sha256":"5e5062e8aaab452713ce58cee05b1e10b648d54b6dc1f1ecf46c2e58453bcfec"},
       {"path":"telemetry/tests/collector-bounds.test.js","sha256":"193871a6a24bfae44527b783cdcb08739b16c9d03144a0a2e26edeb938af149b"},
       {"path":"telemetry/tests/parent-acceptance.test.mjs","sha256":"fd5bfbf88f01cbb598d335263298a1aceb86eb71732d862d9adea0ba04b0c2e3"},
@@ -20,7 +20,7 @@
     "current_files": [
         {
             "path": "telemetry/src/classifiers.js",
-            "sha256": "2edf386b022c5fc2be63f908db16447308a642d851af68d355276fb57ae110b8",
+            "sha256": "8a9f53b5675fba5d988f6eaaa7e981d04e8289e930e4a1abe501812b7d079a3f",
             "origin": "review correction to existing audited file"
         },
         {
@@ -43,6 +43,14 @@
             "sha256": "71199c833d6cdbf8a3f29c9af76c9af2ce3052db3a11e54bc89ff99873dcb295",
             "origin": "new synthetic exact Date-domain matrix"
         }
+    ]
+  }, {
+    "baseline_commit": "7ede2fd47c6f89280f2350312a495e8e116be6da",
+    "provenance": "R3 same-native-ID payload conflict repair (card t_11313602), synthetic TDD in isolated PR checkout: open acceptance gate RED 2 pass / 1 fail, expanded to 12 cases RED 6 / 6, GREEN 12 / 12. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/classifiers.js","sha256":"8a9f53b5675fba5d988f6eaaa7e981d04e8289e930e4a1abe501812b7d079a3f","origin":"R3 correction: export containsKnownTruncation and operationStableFields"},
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"c24933af4a4fc8366e9f916a8b6e3b3953b17b37c566d4acfd12014453a643f0","origin":"R3 correction: quarantine shared-field payload disagreement"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"5d4fdff8482081c9f723218e33bde9539cedb06baa908986e4e21020a92a3558","origin":"new synthetic R3 regression tests"}
     ]
 }],
   "files": [

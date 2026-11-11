@@ -80,7 +80,7 @@ function countLeaves(value, seen = new Set()) {
   return result;
 }
 
-function containsKnownTruncation(value, seen = new Set()) {
+export function containsKnownTruncation(value, seen = new Set()) {
   if (typeof value === 'string') return value.endsWith('...[truncated]');
   if (!value || typeof value !== 'object' || seen.has(value)) return false;
   seen.add(value);
@@ -380,6 +380,12 @@ function episodeStableFields(toolName, args) {
     default:
       return null;
   }
+}
+
+// Normalized stable fields (defaults and legacy aliases resolved) for one representation, or
+// null when the representation is not complete enough to have them.
+export function operationStableFields(toolNameInput, args) {
+  return episodeStableFields(safeToolName(toolNameInput), args);
 }
 
 export function isOperationReadOnly(toolName, args) {

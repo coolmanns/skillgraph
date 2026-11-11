@@ -34,7 +34,8 @@ Initial migration verification: **33 tests, 29 pass, 4 fail, no skips/todos**.
 
 The approved repair pass fixes these four failures plus the subsequently reproduced patch retry
 identity defect. Independent review then found incorrect omitted patch mode and rounded extreme
-Date-range validation (R1/R2), now corrected with TDD. Current full gate: **133 tests, 133 pass,
+Date-range validation (R1/R2), now corrected with TDD, followed by the R3 same-native-ID payload
+conflict repair. Current full gate: **145 tests, 145 pass,
 0 fail, no skips/todos**; unchanged independent adversarial suite: **15/15 pass**. Positive controls,
 role/source spoof rejection, sub-millisecond boundaries, body-read sentinels and synthetic replay
 are included. The older `collector-bounds` fixture now declares its actual default profile rather
@@ -42,9 +43,9 @@ than relying on unverifiable membership. No test is skipped or marked expected-f
 
 `npm --prefix telemetry run test:unit` is a diagnostic subset, never the readiness gate.
 `npm --prefix telemetry run test:acceptance` runs the expanded parent suites only, not patch tests.
-`npm --prefix telemetry run test:open-gates` runs open acceptance gates for known, unfixed defects
-(currently R3, see `docs/COLLECTOR-REPAIRS.md`). It is **expected to fail** and runs as the separate
-CI job `open-gates`; it is not part of `npm test`, and a red `open-gates` check is not a regression.
+R3 (same-native-ID payload conflicts) was an expected-red open gate until fixed; its tests are now
+part of `npm test` (`tests/r3-duplicate-native-id-conflict.test.mjs`). A future known, unfixed defect
+gets the same treatment: a separate, visibly failing CI job that is not part of `npm test`.
 
 ### Deliberate compatibility limits
 
@@ -71,14 +72,13 @@ CI job `open-gates`; it is not part of `npm test`, and a red `open-gates` check 
   Claims, notifications, compaction and RED tests alone are insufficient. Mixed evidence is allowed;
   actual receipt content and predicate relevance still need review. Partial/unknown cases stay valid.
 
-## Known broader integrity blocker (R3)
+## Same-native-ID conflicts (R3, repaired)
 
-Two complete patch representations sharing a session/native call ID, path and mode but differing
-in replacement content still reduce to one call with no quarantine. The unchanged reducer compares
-target/action rather than content-bound retry keys. This pre-existing loss is **not repaired** by
-R1/R2 or proven safe by identical-duplicate replay tests; it blocks broader integrity/readiness.
-A separately scoped fix must distinguish complete conflicts from missing/truncated compaction
-variants. Independent rereview of this bounded correction is also still pending.
+Representations of one native tool call must agree on every field they share; otherwise the
+identity is quarantined (`operation_payload`) instead of silently keeping the "richest" variant.
+Missing fields and values with the `...[truncated]` marker are compaction, not conflict. See
+`docs/COLLECTOR-REPAIRS.md` for the rule, TDD evidence and limits. Independent rereview of the
+repair is pending.
 
 ## Evidence is not truth
 
