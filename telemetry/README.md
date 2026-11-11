@@ -42,6 +42,9 @@ than relying on unverifiable membership. No test is skipped or marked expected-f
 
 `npm --prefix telemetry run test:unit` is a diagnostic subset, never the readiness gate.
 `npm --prefix telemetry run test:acceptance` runs the expanded parent suites only, not patch tests.
+`npm --prefix telemetry run test:open-gates` runs open acceptance gates for known, unfixed defects
+(currently R3, see `docs/COLLECTOR-REPAIRS.md`). It is **expected to fail** and runs as the separate
+CI job `open-gates`; it is not part of `npm test`, and a red `open-gates` check is not a regression.
 
 ### Deliberate compatibility limits
 

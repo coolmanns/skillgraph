@@ -32,3 +32,31 @@ jobs:
         env:
           TMPDIR: ${{ runner.temp }}
         run: npm test
+
+  # Open acceptance gates for known, unfixed defects (card t_11313602, currently R3).
+  # Expected RED until fixed. Kept as a separate check so the regression job above stays a
+  # meaningful green signal; never add continue-on-error, skips or expected-failure wrappers.
+  open-gates:
+    name: open-gates (t_11313602 R3, expected red)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: telemetry
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Install exact locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Build only audited native dependency from source
+        env:
+          npm_config_build_from_source: 'true'
+        run: npm rebuild better-sqlite3 --foreground-scripts
+      - name: Open acceptance gates (tests/acceptance)
+        env:
+          TMPDIR: ${{ runner.temp }}
+        run: npm run test:open-gates

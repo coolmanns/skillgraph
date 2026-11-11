@@ -26,3 +26,6 @@ __pycache__/
 *.key
 telemetry/operations/
 telemetry/mappings/
+
+# Hermes Project worktrees (Kanban cards linked to the skillgraph project)
+.worktrees/

@@ -130,8 +130,13 @@ The reducer remains byte-identical to the original repair baseline. Two fully ob
 representations with the same session/native ID, same path/mode but different `new_string`
 values have distinct classifier retry signatures yet yield **1 reduced / 0 quarantined**;
 `chooseRichestCall` silently retains one. An identical-duplicate control also reduces to one.
-A separate diagnostic reproduced both results after R1/R2; its exit zero means the unresolved
-bug is present, **not** acceptance. Retry grouping tests do not establish duplicate-conflict safety.
+The executable gate is `telemetry/tests/acceptance/r3-duplicate-native-id-conflict.test.mjs`
+(`npm --prefix telemetry run test:open-gates`, CI job `open-gates`): two controls pass (identical
+duplicates and a compacted, field-missing representation each reduce to one call) and the R3 case
+fails until conflicting complete intents are quarantined. It is **expected red** and kept out of
+`npm test` so the regression job stays a meaningful green signal; it must not be skipped, marked
+todo or wrapped as an expected failure. When R3 is fixed, move the gate into the regression suite
+in the same PR. Retry grouping tests do not establish duplicate-conflict safety.
 
 R3 is pre-existing, not introduced by this correction. It remains an explicit broader integrity
 blocker, deliberately not fixed in this R1/R2 scope. A separately authorized repair must distinguish

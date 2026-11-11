@@ -7,7 +7,8 @@
   "scripts": {
     "test": "node --test tests/*.test.js tests/*.test.mjs",
     "test:unit": "node --test tests/*.test.js",
-    "test:acceptance": "node --test tests/parent-acceptance.test.mjs tests/parent-boundaries.test.mjs"
+    "test:acceptance": "node --test tests/parent-acceptance.test.mjs tests/parent-boundaries.test.mjs",
+    "test:open-gates": "node --test tests/acceptance/*.test.mjs"
   },
   "engines": { "node": ">=22" },
   "dependencies": {
