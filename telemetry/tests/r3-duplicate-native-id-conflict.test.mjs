@@ -201,3 +201,15 @@ test('R3 re-review 3: duplicates of a self-contradictory representation fail clo
   const ambiguous = { path: '/p', old_string: 'a', old_text: 'b', new_string: 'n' };
   assertPayloadConflict(reduceSameNativeId([ambiguous, { ...ambiguous }]));
 });
+
+// --- round-4 review of d0d754a: an absent field must not become a null value in the stable form ---
+
+test('R3 re-review 4 control: a patch-mode representation without path reduces with one that has it', () => {
+  for (const partner of [{ mode: 'patch', patch: 'P', path: '/p' }, { mode: 'patch', patch: 'P', file_path: '/p' }]) {
+    assertReducedOnce(reduceSameNativeId([{ mode: 'patch', patch: 'P' }, partner]));
+  }
+});
+
+test('R3 re-review 4: patch-mode payload disagreement is still a conflict', () => {
+  assertPayloadConflict(reduceSameNativeId([{ mode: 'patch', patch: 'P' }, { mode: 'patch', patch: 'Q', path: '/p' }]));
+});

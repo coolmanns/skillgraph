@@ -247,6 +247,13 @@ function fieldValuesConflict(left, right) {
   return false;
 }
 
+// Stable fields use null for an absent (or self-disagreeing) alias, e.g. a patch-mode representation
+// without a path. Absent is an omission, not a value; self-disagreement is already caught by the
+// retained-form comparison. Dropping nulls here keeps classifiers.js (and its signature HMACs) as is.
+function presentStableFields(stable) {
+  return stable && Object.fromEntries(Object.entries(stable).filter(([, value]) => value !== null));
+}
+
 // R3: representations sharing one native call ID must agree on every shared field, as retained
 // (fieldValuesConflict) and, for complete representations, after the classifier's default
 // normalization (so an implicit replace_all=false contradicts an explicit true). Otherwise the
@@ -255,7 +262,7 @@ function stablePayloadConflict(calls, toolName) {
   const items = calls
     .filter((call) => call.args.valid && isPlainRecord(call.args.value))
     .map((call) => {
-      const stable = operationStableFields(toolName, call.args.value);
+      const stable = presentStableFields(operationStableFields(toolName, call.args.value));
       return {
         fields: canonicalFieldValues(toolName, call.args.value),
         stable: stable && canonicalFieldValues(toolName, stable),

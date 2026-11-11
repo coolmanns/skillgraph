@@ -49,30 +49,37 @@
     "provenance": "R3 same-native-ID payload conflict repair (card t_11313602), synthetic TDD in isolated PR checkout: open acceptance gate RED 2 pass / 1 fail, expanded to 12 cases RED 6 / 6, GREEN 12 / 12. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
     "current_files": [
       {"path":"telemetry/src/classifiers.js","sha256":"5b12d36d8a019f2bd91b1a42bf464519fafd53c52c58daf7a400463bc707485a","origin":"R3 correction: export containsKnownTruncation and operationStableFields"},
-      {"path":"telemetry/src/hermes-reducer.js","sha256":"e6a8fc3fec638a541de58b123bcb7094164a347c68965f47a2bd3c5e769d8287","origin":"R3 correction: quarantine shared-field payload disagreement"},
-      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"faa150f08be0fb9de1a60b3cb9c7ccea3779da08e01456e2ca52f23e1423525d","origin":"new synthetic R3 regression tests"}
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 correction: quarantine shared-field payload disagreement"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"new synthetic R3 regression tests"}
     ]
   }, {
     "baseline_commit": "98e3bf33b49f06a6eae3080480aaa622f760da93",
     "provenance": "R3 independent-review corrections (deleg_ebd159ab request_changes): per-representation alias mapping, element-wise array comparison, NFC/trim/lowercase alignment with the older checks. RED vs 98e3bf3 reducer 15 pass / 3 fail (the three review tests), GREEN 18 / 18. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
     "current_files": [
-      {"path":"telemetry/src/hermes-reducer.js","sha256":"e6a8fc3fec638a541de58b123bcb7094164a347c68965f47a2bd3c5e769d8287","origin":"R3 review correction"},
-      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"faa150f08be0fb9de1a60b3cb9c7ccea3779da08e01456e2ca52f23e1423525d","origin":"R3 review regression tests"}
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 review correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 review regression tests"}
     ]
   }, {
     "baseline_commit": "fdcfe87269fe629694044daef0f52ae9220c15b6",
     "provenance": "R3 re-review corrections (deleg_2e6f5598 request_changes): compare unmapped and alias-mapped forms (fail closed on self-disagreeing aliases), resolve aliases by the classifier-normalized tool name (export safeToolName), NFC/trim/lowercase only on skill-name and action fields. RED vs fdcfe87 reducer 18 pass / 3 fail (the three re-review tests), GREEN 21 / 21. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
     "current_files": [
       {"path":"telemetry/src/classifiers.js","sha256":"5b12d36d8a019f2bd91b1a42bf464519fafd53c52c58daf7a400463bc707485a","origin":"R3 re-review correction: export safeToolName"},
-      {"path":"telemetry/src/hermes-reducer.js","sha256":"e6a8fc3fec638a541de58b123bcb7094164a347c68965f47a2bd3c5e769d8287","origin":"R3 re-review correction"},
-      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"faa150f08be0fb9de1a60b3cb9c7ccea3779da08e01456e2ca52f23e1423525d","origin":"R3 re-review regression tests"}
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 re-review correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 re-review regression tests"}
     ]
   }, {
     "baseline_commit": "e002f26be3de3f31e9cb23bf9b715c1d0c1df2ba",
     "provenance": "R3 round-3 review corrections (deleg_b00aab36 request_changes): replace two-form comparison with per-canonical-field value lists so the outcome is independent of alias spelling and a truncated alias cannot hide a full-value disagreement. RED vs e002f26 reducer 22 pass / 2 fail (the two round-3 defect tests), GREEN 25 / 25. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
     "current_files": [
-      {"path":"telemetry/src/hermes-reducer.js","sha256":"e6a8fc3fec638a541de58b123bcb7094164a347c68965f47a2bd3c5e769d8287","origin":"R3 round-3 correction"},
-      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"faa150f08be0fb9de1a60b3cb9c7ccea3779da08e01456e2ca52f23e1423525d","origin":"R3 round-3 regression tests"}
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 round-3 correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 round-3 regression tests"}
+    ]
+  }, {
+    "baseline_commit": "d0d754ade7dff2c5cafad570504ed54992bf5f0a",
+    "provenance": "R3 round-4 review correction (deleg_a4631d97 request_changes): drop null-valued stable fields (absent alias) before comparison so a patch-mode representation without path reduces with one that has it; classifiers.js unchanged. RED vs d0d754a reducer 26 pass / 1 fail (the round-4 control), GREEN 27 / 27. Earlier current_files hashes refreshed to these bytes; original files[] remains immutable.",
+    "current_files": [
+      {"path":"telemetry/src/hermes-reducer.js","sha256":"bc34fb7227fedc06456515bb26076e00db7332e46343c1a4d01543f6a4e546e8","origin":"R3 round-4 correction"},
+      {"path":"telemetry/tests/r3-duplicate-native-id-conflict.test.mjs","sha256":"8d4dd9766696606222d067febaee92e5f02b853ad69554c3948aa09279eb66e1","origin":"R3 round-4 regression tests"}
     ]
 }],
   "files": [

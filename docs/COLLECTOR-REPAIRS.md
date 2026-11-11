@@ -154,7 +154,9 @@ case. The only normalizations are those the older checks already apply, on those
 skill names on `skill_*` tools after NFC + trim, and `action`/`operation`/`mode` after NFC + trim +
 lowercase (all three, where the older check uses the first present). Complete representations are
 also compared after the classifier's default normalization (`operationStableFields`), so an implicit
-`replace_all: false` contradicts an explicit `true`. Values cut without the marker fail closed.
+`replace_all: false` contradicts an explicit `true`; a `null` there only means the field was absent
+and is dropped (an explicit `null` in the retained arguments is still a value). Values cut without
+the marker fail closed.
 
 **TDD evidence.** `telemetry/tests/r3-duplicate-native-id-conflict.test.mjs` (part of `npm test`;
 the `open-gates` job and `test:open-gates` script were removed with it):
@@ -172,15 +174,18 @@ the `open-gates` job and `test:open-gates` script were removed with it):
 | Re-review corrections `e002f26` (GREEN) | 21 / 21; full gate 154 / 154 |
 | Round-3 review of `e002f26` | request changes: a self-disagreeing alias set could still hide a conflict depending on the partner's alias spelling or a truncated alias; docs still cited a figure from the unauthorized read |
 | Round-3 tests against the `e002f26` reducer (RED) | 24 tests: 22 pass, 2 fail (exactly the two defect tests; controls pass) |
-| Per-field value lists (GREEN) | 25 / 25 (incl. pinned fail-closed duplicate case); full gate `npm --prefix telemetry test` 158 / 158, 0 skipped/todo |
+| Per-field value lists `d0d754a` (GREEN) | 25 / 25 (incl. pinned fail-closed duplicate case); full gate 158 / 158 |
+| Round-4 review of `d0d754a` | request changes (low, fail-closed, present since `98e3bf3`): a patch-mode representation without `path` falsely conflicted via the stable form's `path: null` |
+| Round-4 tests against the `d0d754a` reducer (RED) | 27 tests: 26 pass, 1 fail (the round-4 control) |
+| Null stable fields dropped (GREEN) | 27 / 27; full gate `npm --prefix telemetry test` 160 / 160, 0 skipped/todo |
 | Unchanged independent adversarial suite (2322e1fd reviewer) | 15 / 15 |
 | Unchanged reviewer extra probes (8e0550de rereview) | 4 / 4 |
 
 The reviewers' own probe sets, rerun unchanged against each correction, flip exactly the reported
 cases (round 1: 3 normalization cases reduce, 2 alias and 3 array false negatives quarantine;
 round 2: 4 self-alias cases and 3 NFC-outside-normalized-field cases quarantine, mixed-case tool
-names resolve; round 3: all 8 reported alias-spelling and truncated-alias cases quarantine) and
-leave every benign-compaction case reducing.
+names resolve; round 3: all 8 reported alias-spelling and truncated-alias cases quarantine; round 4: both
+patch-mode omitted-path cases reduce) and leave every benign-compaction case reducing.
 
 **Limits and follow-ups (not fixed here).**
 - A patch representation with no `mode` and a `patch` payload versus an explicit `mode: patch` with
